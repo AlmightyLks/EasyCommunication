@@ -7,7 +7,7 @@ EasyCommunication is there to offer you a modular & easy way of making apps comm
 ---
 ## Resources used / Versions used
 
-- .NET Standard       2.1  
+- .NET Standard       2.0  
 - Newtonsoft.Json     12.0.3  
 
 ---
