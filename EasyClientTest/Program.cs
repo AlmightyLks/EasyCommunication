@@ -73,8 +73,7 @@ namespace EasyClientTest
         private static void EventHandler_ConnectedToHost(ConnectedToHostEventArgs ev)
         {
             //Note that connection has been established successfully
-            Console.WriteLine($"I will abort connection with {ev.Connection.GetIPAndPort()}");
-            ev.Abort = true;
+            Console.WriteLine($"Connection establish with {ev.Connection.GetIPAndPort()}");
         }
 
         private static void EventHandler_ReceivedData(ReceivedDataEventArgs ev)
