@@ -17,9 +17,9 @@ EasyCommunication is there to offer you a modular & easy way of making apps comm
 ## Library includes:
 
 ### [EasyHost](https://almightylks.gitbook.io/easycommunication/home/easyhost/class-easyhost)
-  - Listens for incoming EasyClient connections & send and receive data from connected clients
+  - Listens for incoming EasyClient connections & send and receive data from connected EasyClients
 ### [EasyClient](https://almightylks.gitbook.io/easycommunication/home/easyclient/class-easyclient)
-  - Establish a connection and communicate with an EasyHost & Send and receive data from a connected EasyHost  
+  - Establish a connection and communicate with an EasyHost & send and receive data from a connected EasyHost  
 
 ### [Events](https://almightylks.gitbook.io/easycommunication/home/events)  
   - #### [Host](https://almightylks.gitbook.io/easycommunication/home/events/host)  
