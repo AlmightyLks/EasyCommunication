@@ -3,6 +3,7 @@
 ## Description
 
 EasyCommunication is there to offer you a modular & easy way of making apps communicate with a Host-Client structure.  
+A get-started example you can find [here](https://github.com/AlmightyLks/EasyCommunication/tree/Example).
 
 ---
 ## Resources used / Versions used
