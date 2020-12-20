@@ -1,7 +1,9 @@
 ﻿using EasyCommunication.Events.Host.EventArgs;
 using EasyCommunication.Events.Host.EventHandler;
 using EasyCommunication.Helper;
+using EasyCommunication.Logging;
 using EasyCommunication.SharedTypes;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -23,12 +25,15 @@ namespace EasyCommunication.Host.Connection
         public int ListeningPort { get; private set; }
 
         private BinaryFormatter binaryFormatter;
+        private ILogger logger;
 
         public EasyHost(int heartbeatInterval, int listeningPort, IPAddress listeningAddress)
         {
+            logger = new Logger();
+
             ListeningPort = listeningPort;
 
-            Heartbeat = new Heartbeat(heartbeatInterval);
+            Heartbeat = new Heartbeat(heartbeatInterval, logger);
             Heartbeat.EasyHost = this;
 
             EventHandler = new HostEventHandler();
@@ -54,18 +59,37 @@ namespace EasyCommunication.Host.Connection
 
         public SendStatus SendData<T>(T data, TcpClient receiver)
         {
+
+            object actualData;
+
+            var isSerializable = typeof(T).IsSerializable;
+
             try
             {
-                var sendingArgs = new SendingDataEventArgs()
-                {
-                    Receiver = receiver,
-                    Data = data,
-                    Allow = true,
-                    IsHeartbeat = data is HeartbeatPing
-                };
+                if (!isSerializable)
+                    actualData = JsonConvert.SerializeObject(data);
+                else
+                    actualData = data;
+            }
+            catch (Exception e)
+            {
+                logger.Error($"\"{typeof(T).Name}\" -> Neither Serializable nor JsonConvert'able type.");
+                return SendStatus.Unsuccessfull;
+            }
 
-                EventHandler.InvokeSendingData(sendingArgs);
+            var sendingArgs = new SendingDataEventArgs()
+            {
+                Allow = true,
+                Data = actualData,
+                IsHeartbeat = (data is HeartbeatPing),
+                IsSerializable = isSerializable,
+                Receiver = receiver
+            };
 
+            EventHandler.InvokeSendingData(sendingArgs);
+
+            try
+            {
                 if (sendingArgs.Allow)
                     binaryFormatter.Serialize(receiver.GetStream(), data);
                 else
@@ -75,13 +99,14 @@ namespace EasyCommunication.Host.Connection
             {
                 return SendStatus.Unsuccessfull;
             }
+
             return SendStatus.Successfull;
         }
 
         private void ListenForClient()
         {
             TcpListener.Start();
-            Console.WriteLine($"Host is listening for connections on {TcpListener.GetIPv4()}:{TcpListener.GetPort()}");
+            logger.Info($"Host is listening for connections on {TcpListener.GetIPv4()}:{TcpListener.GetPort()}");
 
             for (; ; )
             {
@@ -110,24 +135,24 @@ namespace EasyCommunication.Host.Connection
                         ClientConnections.Add(acceptedClient, port);
                         Heartbeat.Heartbeats.Add(acceptedClient, 1);
 
-                        Console.WriteLine($"Accepted connection for {acceptedClient.GetIPv4()}:{acceptedClient.GetPort()}");
+                        logger.Info($"Accepted connection for {acceptedClient.GetIPv4()}:{acceptedClient.GetPort()}");
                         //Handle each client individually.
                         Task.Run(() => { HandleRequests(acceptedClient); });
                     }
                     else
                     {
-                        Console.WriteLine($"Declined connection for {acceptedClient.GetIPv4()}:{acceptedClient.GetPort()}");
+                        logger.Warn($"Declined connection for {acceptedClient.GetIPv4()}:{acceptedClient.GetPort()}");
                         acceptedClient.Close();
                     }
                 }
                 catch (SocketException)
                 {
-                    Console.WriteLine($"Stopped listening");
+                    logger.Error($"Stopped listening");
                     break;
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine($"Exception in ListenForClient:\n{e}");
+                    logger.Error($"Exception in ListenForClient:\n{e}");
                 }
             }
         }
@@ -149,7 +174,7 @@ namespace EasyCommunication.Host.Connection
                 }
                 catch (IOException)
                 {
-                    Console.WriteLine($"Socket connection for {clientInfo.Value} was closed.");
+                    logger.Error($"Socket connection for {clientInfo.Value} was closed.");
 
                     //Remove client from storage
                     ClientConnections.Remove(clientInfo.Key);
@@ -162,7 +187,7 @@ namespace EasyCommunication.Host.Connection
                 }
                 catch (SerializationException e)
                 {
-                    Console.WriteLine($"\"{e.Message}\" {clientInfo.Value}.");
+                    logger.Error($"\"{e.Message}\" {clientInfo.Value}.");
 
                     //Remove from storage
                     ClientConnections.Remove(clientInfo.Key);
@@ -176,12 +201,12 @@ namespace EasyCommunication.Host.Connection
                 }
                 catch (InvalidOperationException e)
                 {
-                    Console.WriteLine($"\"{e.Message}\" {clientInfo.Value}.");
+                    logger.Error($"\"{e.Message}\" {clientInfo.Value}.");
                     break;
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine($"\"{e.Message}\" {clientInfo.Value}.");
+                    logger.Error($"\"{e.Message}\" {clientInfo.Value}.");
                     break;
                 }
             }
@@ -217,7 +242,7 @@ namespace EasyCommunication.Host.Connection
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Exception in Handle data:\n{e}");
+                logger.Error($"Exception in Handle data:\n{e}");
             }
         }
     }

@@ -1,4 +1,5 @@
 ﻿using EasyCommunication.Helper;
+using EasyCommunication.Logging;
 using EasyCommunication.SharedTypes;
 using System;
 using System.Collections.Generic;
@@ -19,9 +20,12 @@ namespace EasyCommunication.Host.Connection
         internal int HeartbeatInterval { get; set; }
 
         private Timer heartbeatTimer;
+        private ILogger logger;
 
-        internal Heartbeat(int heartbeatInterval)
+        internal Heartbeat(int heartbeatInterval, ILogger logger)
         {
+            this.logger = logger;
+
             HeartbeatInterval = heartbeatInterval;
             Heartbeats = new Dictionary<TcpClient, int>();
             heartbeatTimer = new Timer();
@@ -61,7 +65,7 @@ namespace EasyCommunication.Host.Connection
 
                     if (hbCount == 0) //If no hearbeats have been returned
                     {
-                        Console.WriteLine($"No hearbeats received from port {connection.Value}. Connection closed.");
+                        logger.Warn($"No hearbeats received from port {connection.Value}. Connection closed.");
 
                         //Remove from storage
                         Heartbeats.Remove(connection.Key);
@@ -79,7 +83,7 @@ namespace EasyCommunication.Host.Connection
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Exception in Check Heartbeats:\n{e}");
+                logger.Error($"Exception in Check Heartbeats:\n{e}");
             }
         }
         private void SendHeartbeats()
@@ -94,11 +98,11 @@ namespace EasyCommunication.Host.Connection
                     //Send out Heartbeats to every client
                     SendStatus status = EasyHost.SendData(new HeartbeatPing(), connection.Key);
 
-                    Console.WriteLine($"Heartbeat sent for {connection.Value}: {SendStatus.Disallowed}");
+                    logger.Info($"Heartbeat sent for {connection.Value}: {status}");
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine($"Error sending Heartbeats:\n{e}");
+                    logger.Error($"Error sending Heartbeats:\n{e}");
                 }
             }
         }

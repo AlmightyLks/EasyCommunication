@@ -8,6 +8,7 @@ namespace EasyCommunication.Events.Host.EventArgs
         public TcpClient Receiver { get; internal set; }
         public object Data { get; internal set; }
         public bool IsHeartbeat { get; internal set; }
+        public bool IsSerializable { get; internal set; }
         public bool Allow { get; set; }
     }
 }

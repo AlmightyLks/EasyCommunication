@@ -1,11 +1,14 @@
 ﻿using EasyCommunication.Events.Client.EventArgs;
 using EasyCommunication.Events.Client.EventHandler;
 using EasyCommunication.Helper;
+using EasyCommunication.Logging;
 using EasyCommunication.SharedTypes;
+using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
@@ -21,9 +24,11 @@ namespace EasyCommunication.Client.Connection
         internal Task RequestListening { get; private set; }
 
         private BinaryFormatter binaryFormatter;
+        private ILogger logger;
 
         public EasyClient()
         {
+            logger = new Logger();
             Connection = null;
             Client = new TcpClient();
             binaryFormatter = new BinaryFormatter();
@@ -44,17 +49,16 @@ namespace EasyCommunication.Client.Connection
 
             Connection = new Connection() { IPAddress = address, Port = port };
 
-            //Console.WriteLine($"Attemping connecting to {Connection.GetIPAndPort()}");
 
             try
             {
                 Client.Connect(address, port);
-                Console.WriteLine($"Connection attempt successfull");
+                logger.Info($"Connection attempt successfull");
             }
             catch
             {
                 Connection = null;
-                Console.WriteLine($"Connection attempt failed");
+                logger.Error($"Connection attempt failed");
             }
 
             StartListening();
@@ -69,11 +73,29 @@ namespace EasyCommunication.Client.Connection
         }
         public SendStatus SendData<T>(T data)
         {
+            object actualData;
+
+            var isSerializable = typeof(T).IsSerializable;
+
+            try
+            {
+                if (!isSerializable)
+                    actualData = JsonConvert.SerializeObject(data);
+                else
+                    actualData = data;
+            }
+            catch (Exception e)
+            {
+                logger.Error($"\"{typeof(T).Name}\" -> Neither Serializable nor JsonConvert'able type.");
+                return SendStatus.Unsuccessfull;
+            }
+
             var sendingArgs = new SendingDataEventArgs()
             {
                 Allow = true,
-                Data = data,
+                Data = actualData,
                 IsHeartbeat = (data is HeartbeatPing),
+                IsSerializable = isSerializable,
                 Receiver = Connection
             };
 
@@ -105,11 +127,10 @@ namespace EasyCommunication.Client.Connection
                     if (!Client.Connected)
                         continue;
 
-
-                    Console.WriteLine($"Waiting for Requests...");
-
                     //Wait for and deserialize the incoming data
                     var receivedData = binaryFormatter.Deserialize(Client.GetStream());
+
+                    logger.Info($"Received request");
 
                     //Received Data Event
                     var receivedArgs = new ReceivedDataEventArgs()
@@ -133,25 +154,25 @@ namespace EasyCommunication.Client.Connection
                 }
                 catch (IOException e)
                 {
-                    Console.WriteLine($"Socket connection for {Connection.GetIPAndPort()} was closed.");
+                    logger.Error($"Socket connection for {Connection.GetIPAndPort()} was closed.");
 
                     DisconnectFromHost();
                 }
                 catch (SocketException e)
                 {
-                    Console.WriteLine($"Socket connection for {Connection.GetIPAndPort()} was closed.");
+                    logger.Error($"Socket connection for {Connection.GetIPAndPort()} was closed.");
 
                     DisconnectFromHost();
                 }
                 catch (SerializationException e)
                 {
-                    Console.WriteLine($"\"{e.Message}\" {Connection.GetIPAndPort()}.");
+                    logger.Error($"\"{e.Message}\" {Connection.GetIPAndPort()}.");
 
                     DisconnectFromHost();
                 }
                 catch
                 {
-                    Console.WriteLine($"eee - Exception in listen:\n{Connection.GetIPAndPort()}");
+                    logger.Error($"eee - Exception in listen:\n{Connection.GetIPAndPort()}");
                 }
             }
         }
