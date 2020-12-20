@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace EasyCommunication.SharedTypes
+﻿namespace EasyCommunication.SharedTypes
 {
+    //Neither serializable, not jsonconvertable
     public class SomeTest
     {
         public SomeTest Test { get; set; }
