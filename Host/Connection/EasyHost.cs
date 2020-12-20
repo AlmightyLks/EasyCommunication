@@ -16,17 +16,58 @@ using System.Threading.Tasks;
 
 namespace EasyCommunication.Host.Connection
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <remarks>
+    /// <para>Listen for incoming client connection</para>
+    /// <para>Send and Receive Data from connected Clients</para>
+    /// <para>Send and Receive Data from </para>
+    /// </remarks>
     public class EasyHost
     {
+        /// <summary>
+        /// The TcpListener used to listen for incoming connections.
+        /// </summary>
         public TcpListener TcpListener { get; private set; }
+
+        /// <summary>
+        /// All Connections with received Heartbeats since last query,
+        /// used by <see cref="Connection.Heartbeat"/>.
+        /// </summary>
         public Dictionary<TcpClient, int> ClientConnections { get; private set; }
+
+        /// <summary>
+        /// EventHandler for EasyHost-events
+        /// </summary>
         public HostEventHandler EventHandler { get; private set; }
+
+        /// <summary>
+        /// <see cref="Connection.Heartbeat"/> instance, responsible for heartbeating connected clients
+        /// </summary>
         internal Heartbeat Heartbeat { get; private set; }
+
+        /// <summary>
+        /// The port on which the Host is listening for incoming connections
+        /// </summary>
         public int ListeningPort { get; private set; }
 
+        /// <summary>
+        /// BinaryFormatter for serializing data into the Client's NetworkStream
+        /// </summary>
         private BinaryFormatter binaryFormatter;
+
+        /// <summary>
+        /// <see cref="ILogger"/> instance, responsible for logging
+        /// </summary>
         private ILogger logger;
 
+        /// <summary>
+        /// Creates an instance of <see cref="EasyHost"/> with a Heartbeat Interval, a Listening Port and a Listening Address.
+        /// </summary>
+        /// <param name="heartbeatInterval">Heartbeat Interval</param>
+        /// <param name="listeningPort">Listening Port for <see cref="TcpListener"/></param>
+        /// <param name="listeningAddress">Listening Address for <see cref="TcpListener"/></param>
         public EasyHost(int heartbeatInterval, int listeningPort, IPAddress listeningAddress)
         {
             logger = new Logger();
@@ -42,11 +83,27 @@ namespace EasyCommunication.Host.Connection
             binaryFormatter = new BinaryFormatter();
         }
 
+        /// <summary>
+        /// Open the <see cref="TcpListener"/> to listen for connections
+        /// </summary>
+        /// <remarks>
+        /// <para>Starts listening for incoming connection</para>
+        /// <para>Starts querying Heartbeats</para>
+        /// </remarks>
         public void Open()
         {
             Heartbeat.Start();
             Task.Run(() => ListenForClient());
         }
+
+        /// <summary>
+        /// Closes the <see cref="TcpListener"/> from listening for connections
+        /// </summary>
+        /// <remarks>
+        /// <para>Stops listening for incoming connection</para>
+        /// <para>Stops querying Heartbeats</para>
+        /// <para>Closes all connections</para>
+        /// </remarks>
         public void Close()
         {
             Heartbeat.Stop();
@@ -57,9 +114,15 @@ namespace EasyCommunication.Host.Connection
             TcpListener.Stop();
         }
 
+        /// <summary>
+        /// Sends data to the specified receiver
+        /// </summary>
+        /// <typeparam name="T">Custom Type which has to be either JsonConvert'able or Serializable</typeparam>
+        /// <param name="data">Data to send</param>
+        /// <param name="receiver">Receiver of the data</param>
+        /// <returns></returns>
         public SendStatus SendData<T>(T data, TcpClient receiver)
         {
-
             object actualData;
 
             var isSerializable = typeof(T).IsSerializable;
@@ -103,6 +166,9 @@ namespace EasyCommunication.Host.Connection
             return SendStatus.Successfull;
         }
 
+        /// <summary>
+        /// Start listening for connections
+        /// </summary>
         private void ListenForClient()
         {
             TcpListener.Start();
@@ -156,6 +222,11 @@ namespace EasyCommunication.Host.Connection
                 }
             }
         }
+
+        /// <summary>
+        /// Once the connection is accepted, each connection is listened for incoming requests
+        /// </summary>
+        /// <param name="acceptedClient"></param>
         private void HandleRequests(TcpClient acceptedClient)
         {
             //Find connection
@@ -211,6 +282,12 @@ namespace EasyCommunication.Host.Connection
                 }
             }
         }
+
+        /// <summary>
+        /// One data is received, it is being handled here
+        /// </summary>
+        /// <param name="receivedData">The received data</param>
+        /// <param name="clientInfo">Information about the sender</param>
         private void HandleData(object receivedData, KeyValuePair<TcpClient, int> clientInfo)
         {
             try

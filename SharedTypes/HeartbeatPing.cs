@@ -3,5 +3,5 @@
 namespace EasyCommunication.SharedTypes
 {
     [Serializable]
-    public class HeartbeatPing { }
+    public sealed class HeartbeatPing { }
 }

@@ -1,10 +1,10 @@
 ﻿namespace EasyCommunication.SharedTypes
 {
-    //Neither serializable, not jsonconvertable
-    public class SomeTest
+    //Neither Serializable, nor JsonConvert'able
+    internal sealed class SomeTest
     {
-        public SomeTest Test { get; set; }
-        public SomeTest()
+        internal SomeTest Test { get; set; }
+        internal SomeTest()
         {
             Test = this;
         }
