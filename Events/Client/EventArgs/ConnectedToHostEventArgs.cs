@@ -1,10 +1,11 @@
-﻿using System.Net.Sockets;
+﻿using EasyCommunication.Client.Connection;
+using System.Net.Sockets;
 
 namespace EasyCommunication.Events.Client.EventArgs
 {
     public class ConnectedToHostEventArgs : IClientEventArgs
     {
-        public TcpClient Client { get; internal set; }
-        public int HostPort { get; internal set; }
+        public Connection? Connection { get; internal set; }
+        public bool Abort { get; set; }
     }
 }

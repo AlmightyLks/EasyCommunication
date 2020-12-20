@@ -95,21 +95,33 @@ namespace EasyCommunication.Client.Connection
 
             Connection = new Connection() { IPAddress = address, Port = port };
 
-
             try
             {
                 Client.Connect(address, port);
-                logger.Info($"Connection attempt successfull");
+
+                var cntArgs = new ConnectedToHostEventArgs() { Connection = Connection, Abort = false };
+
+                EventHandler.InvokeConnectedToHost(cntArgs);
+
+                if (cntArgs.Abort)
+                {
+                    DisconnectFromHost();
+
+                    logger.Info($"Connection attempt aborted");
+                }
+                else
+                {
+                    StartListening();
+                    logger.Info($"Connection attempt successfull");
+                }
             }
             catch
             {
                 Connection = null;
                 logger.Error($"Connection attempt failed");
             }
-
-            StartListening();
         }
-        
+
         /// <summary>
         /// Disconnect from <see cref="EasyCommunication.Host.Connection.EasyHost"/>
         /// </summary>
