@@ -3,6 +3,7 @@
 ## Description
 
 EasyCommunication is there to offer you a modular & easy way of making apps communicate with a Host-Client structure.  
+This library is based on a BinaryFormatter, so either your transmited data has to be tagged with `[Serializable]`, or alternatively it has to be convertable with Newtonsoft.Json.
 A get-started example you can find [here](https://github.com/AlmightyLks/EasyCommunication/tree/Example).
 
 ---
