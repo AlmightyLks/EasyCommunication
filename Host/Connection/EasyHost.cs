@@ -154,7 +154,7 @@ namespace EasyCommunication.Host.Connection
             try
             {
                 if (sendingArgs.Allow)
-                    binaryFormatter.Serialize(receiver.GetStream(), data);
+                    binaryFormatter.Serialize(receiver.GetStream(), actualData);
                 else
                     return SendStatus.Disallowed;
             }
@@ -238,12 +238,12 @@ namespace EasyCommunication.Host.Connection
                 {
                     if (!acceptedClient.Connected)
                         return;
-
+                    
                     //Accept SharedInfo data from the client.
-                    object receivedData = binaryFormatter.Deserialize(acceptedClient.GetStream());
+                    var receivedData = binaryFormatter.Deserialize(acceptedClient.GetStream());
                     Task.Run(() => HandleData(receivedData, clientInfo));
                 }
-                catch (IOException)
+                catch (IOException e)
                 {
                     logger.Error($"Socket connection for {clientInfo.Value} was closed.");
 

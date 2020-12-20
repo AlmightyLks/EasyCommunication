@@ -1,6 +1,7 @@
 ﻿using EasyCommunication.Events.Client.EventArgs;
 using EasyCommunication.Events.Client.EventHandler;
 using EasyCommunication.Helper;
+using EasyCommunication.Host.Connection;
 using EasyCommunication.Logging;
 using EasyCommunication.SharedTypes;
 using Newtonsoft.Json;
@@ -166,7 +167,7 @@ namespace EasyCommunication.Client.Connection
 
             try
             {
-                binaryFormatter.Serialize(Client.GetStream(), data);
+                binaryFormatter.Serialize(Client.GetStream(), actualData);
             }
             catch
             {
