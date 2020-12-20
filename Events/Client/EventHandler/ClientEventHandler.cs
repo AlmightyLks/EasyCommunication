@@ -3,10 +3,24 @@ using static EasyCommunication.Events.Client.Events;
 
 namespace EasyCommunication.Events.Client.EventHandler
 {
+    /// <summary>
+    /// EventHandler for <see cref="EasyCommunication.Client.Connection.EasyClient"/>-Events
+    /// </summary>
     public class ClientEventHandler
     {
+        /// <summary>
+        /// Event fired when an <see cref="EasyCommunication.Client.Connection.EasyClient"/> connected to an <see cref="EasyCommunication.Host.Connection.EasyHost"/>
+        /// </summary>
         public event OnCommunicationEvent<ConnectedToHostEventArgs> ConnectedToHost;
+
+        /// <summary>
+        /// Event fired when data is received from an <see cref="EasyCommunication.Host.Connection.EasyHost"/>
+        /// </summary>
         public event OnCommunicationEvent<ReceivedDataEventArgs> ReceivedData;
+
+        /// <summary>
+        /// Event fired when an <see cref="EasyCommunication.Client.Connection.EasyClient"/> is sending data to an <see cref="EasyCommunication.Host.Connection.EasyHost"/>
+        /// </summary>
         public event OnCommunicationEvent<SendingDataEventArgs> SendingData;
 
         internal void InvokeConnectedToHost(ConnectedToHostEventArgs ev) => ConnectedToHost?.Invoke(ev);

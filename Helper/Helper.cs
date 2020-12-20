@@ -9,17 +9,52 @@ namespace EasyCommunication.Helper
 {
     public static class Helper
     {
+        /// <summary>
+        /// Gets the TcpListener's port
+        /// </summary>
+        /// <remarks>
+        /// <para>If null, -1</para>
+        /// </remarks>
+        /// <param name="listener"></param>
+        /// <returns>TcpListener's port</returns>
         public static int GetPort(this TcpListener listener)
             => (listener.LocalEndpoint as IPEndPoint)?.Port ?? -1;
+
+        /// <summary>
+        /// Gets the TcpClient's port
+        /// </summary>
+        /// <remarks>
+        /// <para>If null, -1</para>
+        /// </remarks>
+        /// <param name="client"></param>
+        /// <returns>TcpClient's port</returns>
         public static int GetPort(this TcpClient client)
             => (client.Client.RemoteEndPoint as IPEndPoint)?.Port ?? -1;
 
+        /// <summary>
+        /// Gets the TcpListener's IPv4 Address
+        /// </summary>
+        /// <remarks>
+        /// <para>If null, Unknown</para>
+        /// </remarks>
+        /// <param name="listener"></param>
+        /// <returns>TcpListener's IPv4 Address</returns>
         public static string GetIPv4(this TcpListener listener)
         {
             IPAddress ip;
             IPAddress.TryParse((listener.LocalEndpoint as IPEndPoint)?.Address.ToString(), out ip);
             return ip.ToString() ?? "Unknown";
         }
+
+
+        /// <summary>
+        /// Gets the TcpClient's IPv4 Address
+        /// </summary>
+        /// <remarks>
+        /// <para>If null, Unknown</para>
+        /// </remarks>
+        /// <param name="client"></param>
+        /// <returns>TcpClient's IPv4 Address</returns>
         public static string GetIPv4(this TcpClient client)
         {
             IPAddress ip;
@@ -27,6 +62,14 @@ namespace EasyCommunication.Helper
             return ip.ToString() ?? "Unknown";
         }
 
+        /// <summary>
+        /// Combines <see cref="Connection"/> into a IPAddress:Port string
+        /// </summary>
+        /// <remarks>
+        /// <para>If null, Unknown</para>
+        /// </remarks>
+        /// <param name="client"></param>
+        /// <returns>Connection's IPAddress:Port string</returns>
         public static string GetIPAndPort(this Connection? connection)
             => connection is null ? "<Unknown>" : $"{connection.Value.IPAddress}:{connection.Value.Port}";
     }

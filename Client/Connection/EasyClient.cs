@@ -8,24 +8,63 @@ using System;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Reflection;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 
 namespace EasyCommunication.Client.Connection
 {
+    /// <summary>
+    /// Establish a connection and communicate with an <see cref="EasyHost"/>
+    /// </summary>
+    /// <remarks>
+    /// <para>Send and receive data from a connected <see cref="EasyHost"/></para>
+    /// </remarks>
     public class EasyClient
     {
+        /// <summary>
+        /// Whether or not the Client is connected with an <see cref="EasyHost"/>
+        /// </summary>
         public bool ClientConnected => Client is null ? false : Client.Connected;
+
+        /// <summary>
+        /// EventHandler for EasyClient-events
+        /// </summary>
         public ClientEventHandler EventHandler { get; private set; }
+
+        /// <summary>
+        /// Nullable <see cref="Connection"/> information
+        /// </summary>
+        /// <remarks>
+        /// Null if not connected
+        /// </remarks>
         public Connection? Connection { get; set; }
+
+        /// <summary>
+        /// TcpClient for establishing a connection
+        /// </summary>
         internal TcpClient Client { get; set; }
+
+        /// <summary>
+        /// Task which listens for incoming <see cref="EasyCommunication.Host.Connection.EasyHost"/> requests
+        /// </summary>
         internal Task RequestListening { get; private set; }
 
+
+        /// <summary>
+        /// BinaryFormatter for serializing data into the Client's NetworkStream
+        /// </summary>
         private BinaryFormatter binaryFormatter;
+
+        /// <summary>
+        /// <see cref="ILogger"/> instance, responsible for logging
+        /// </summary>
         private ILogger logger;
 
+
+        /// <summary>
+        /// Creates an instance of <see cref="EasyClient"/>
+        /// </summary>
         public EasyClient()
         {
             logger = new Logger();
@@ -35,6 +74,12 @@ namespace EasyCommunication.Client.Connection
             EventHandler = new ClientEventHandler();
         }
 
+
+        /// <summary>
+        /// Connect to an <see cref="EasyCommunication.Host.Connection.EasyHost"/>
+        /// </summary>
+        /// <param name="address">IPAddress to connect to</param>
+        /// <param name="port">Port to connect to</param>
         public void ConnectToHost(IPAddress address, int port)
         {
             //If the client, for whatever reason, disconnected - Reconnect.
@@ -63,6 +108,10 @@ namespace EasyCommunication.Client.Connection
 
             StartListening();
         }
+        
+        /// <summary>
+        /// Disconnect from <see cref="EasyCommunication.Host.Connection.EasyHost"/>
+        /// </summary>
         public void DisconnectFromHost()
         {
             if (!ClientConnected)
@@ -71,6 +120,14 @@ namespace EasyCommunication.Client.Connection
             Client.GetStream().Close();
             Client.Close();
         }
+
+        /// <summary>
+        /// Sends data to the connected <see cref="EasyCommunication.Host.Connection.EasyHost"/>
+        /// </summary>
+        /// <typeparam name="T">Custom Type which has to be either JsonConvert'able or Serializable</typeparam>
+        /// <param name="data">Data to send</param>
+        /// <param name="receiver">Receiver of the data</param>
+        /// <returns></returns>
         public SendStatus SendData<T>(T data)
         {
             object actualData;
@@ -118,6 +175,11 @@ namespace EasyCommunication.Client.Connection
 
             return SendStatus.Successfull;
         }
+
+        /// <summary>
+        /// Listens for incoming requests sent by <see cref="EasyCommunication.Host.Connection.EasyHost"/>
+        /// </summary>
+        /// <returns><see cref="RequestListening"/></returns>
         internal Task ListenForRequests()
         {
             for (; ; )
@@ -176,6 +238,10 @@ namespace EasyCommunication.Client.Connection
                 }
             }
         }
+
+        /// <summary>
+        /// Asynchronously starts and assigns <see cref="RequestListening"/>
+        /// </summary>
         private void StartListening()
             => Task.Run(() => RequestListening = ListenForRequests());
     }

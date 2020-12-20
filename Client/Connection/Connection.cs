@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Text;
+﻿using System.Net;
 
 namespace EasyCommunication.Client.Connection
 {
+    /// <summary>
+    /// Information about the IPAddress and the Port from the <see cref="Connection"/>
+    /// </summary>
     public struct Connection
     {
         public IPAddress IPAddress { get; set; }

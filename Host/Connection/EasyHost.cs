@@ -17,12 +17,10 @@ using System.Threading.Tasks;
 namespace EasyCommunication.Host.Connection
 {
     /// <summary>
-    /// 
+    /// Listens for incoming <see cref="Client.Connection.EasyClient"/> connections
     /// </summary>
     /// <remarks>
-    /// <para>Listen for incoming client connection</para>
-    /// <para>Send and Receive Data from connected Clients</para>
-    /// <para>Send and Receive Data from </para>
+    /// <para>Send and receive data from connected clients</para>
     /// </remarks>
     public class EasyHost
     {
@@ -62,6 +60,7 @@ namespace EasyCommunication.Host.Connection
         /// </summary>
         private ILogger logger;
 
+
         /// <summary>
         /// Creates an instance of <see cref="EasyHost"/> with a Heartbeat Interval, a Listening Port and a Listening Address.
         /// </summary>
@@ -82,6 +81,7 @@ namespace EasyCommunication.Host.Connection
             TcpListener = new TcpListener(listeningAddress, listeningPort);
             binaryFormatter = new BinaryFormatter();
         }
+
 
         /// <summary>
         /// Open the <see cref="TcpListener"/> to listen for connections
