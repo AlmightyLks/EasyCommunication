@@ -12,7 +12,7 @@ A get-started example you can find [here](https://github.com/AlmightyLks/EasyCom
 - .NET Standard             2.0  
 - Newtonsoft.Json           12.0.3  
 - Serilog                   2.10.0  
-- Serilog.Sinks.Console     2.10.0  
+- Serilog.Sinks.Console     3.1.1  
 
 ---
 
