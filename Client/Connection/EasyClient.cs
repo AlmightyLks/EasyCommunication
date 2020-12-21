@@ -2,9 +2,9 @@
 using EasyCommunication.Events.Client.EventHandler;
 using EasyCommunication.Helper;
 using EasyCommunication.Host.Connection;
-using EasyCommunication.Logging;
 using EasyCommunication.SharedTypes;
 using Newtonsoft.Json;
+using Serilog;
 using System;
 using System.IO;
 using System.Net;
@@ -62,13 +62,30 @@ namespace EasyCommunication.Client.Connection
         /// </summary>
         private ILogger logger;
 
-
         /// <summary>
         /// Creates an instance of <see cref="EasyClient"/>
         /// </summary>
         public EasyClient()
         {
-            logger = new Logger();
+            this.logger = new LoggerConfiguration()
+                .WriteTo.Console()
+                .CreateLogger();
+
+            Connection = null;
+            Client = new TcpClient();
+            binaryFormatter = new BinaryFormatter();
+            EventHandler = new ClientEventHandler();
+        }
+        /// <summary>
+        /// Creates an instance of <see cref="EasyClient"/>
+        /// </summary>
+        /// <param name="logger"><see cref="ILogger"/> DI instance</param>
+        public EasyClient(ILogger logger = null)
+        {
+            this.logger = logger ?? new LoggerConfiguration()
+                .WriteTo.Console()
+                .CreateLogger();
+
             Connection = null;
             Client = new TcpClient();
             binaryFormatter = new BinaryFormatter();
@@ -87,11 +104,8 @@ namespace EasyCommunication.Client.Connection
             if (ClientConnected)
                 return;
 
-            //Stop heartingbeating for old client
-            RequestListening?.Dispose();
-
-            //Reset client
-            Client = new TcpClient();
+            RequestListening?.Dispose();    //Stop heartingbeating for old client
+            Client = new TcpClient();       //Reset client
 
             Connection = new Connection() { IPAddress = address, Port = port };
 
@@ -100,19 +114,17 @@ namespace EasyCommunication.Client.Connection
                 Client.Connect(address, port);
 
                 var cntArgs = new ConnectedToHostEventArgs() { Connection = Connection, Abort = false };
-
                 EventHandler.InvokeConnectedToHost(cntArgs);
 
                 if (cntArgs.Abort)
                 {
                     DisconnectFromHost();
-
-                    logger.Info($"Connection attempt aborted");
+                    logger.Warning($"Connection attempt aborted");
                 }
                 else
                 {
                     StartListening();
-                    logger.Info($"Connection attempt successfull");
+                    logger.Information($"Connection attempt successfull");
                 }
             }
             catch
@@ -135,16 +147,14 @@ namespace EasyCommunication.Client.Connection
         }
 
         /// <summary>
-        /// Sends data to the connected <see cref="EasyCommunication.Host.Connection.EasyHost"/>
+        /// Sends data to the connected <see cref="EasyHost"/>
         /// </summary>
         /// <typeparam name="T">Custom Type which has to be either JsonConvert'able or Serializable</typeparam>
         /// <param name="data">Data to send</param>
-        /// <param name="receiver">Receiver of the data</param>
         /// <returns></returns>
         public SendStatus SendData<T>(T data)
         {
             object actualData;
-
             var isSerializable = typeof(T).IsSerializable;
 
             try
@@ -154,7 +164,7 @@ namespace EasyCommunication.Client.Connection
                 else
                     actualData = data;
             }
-            catch (Exception e)
+            catch
             {
                 logger.Error($"\"{typeof(T).Name}\" -> Neither Serializable nor JsonConvert'able type.");
                 return SendStatus.Unsuccessfull;
@@ -168,12 +178,10 @@ namespace EasyCommunication.Client.Connection
                 IsSerializable = isSerializable,
                 Receiver = Connection
             };
-
             EventHandler.InvokeSendingData(sendingArgs);
 
             if (!sendingArgs.Allow)
                 return SendStatus.Disallowed;
-
             if (Connection is null)
                 return SendStatus.NotConnected;
 
@@ -185,7 +193,6 @@ namespace EasyCommunication.Client.Connection
             {
                 return SendStatus.Unsuccessfull;
             }
-
             return SendStatus.Successfull;
         }
 
@@ -205,9 +212,7 @@ namespace EasyCommunication.Client.Connection
                     //Wait for and deserialize the incoming data
                     var receivedData = binaryFormatter.Deserialize(Client.GetStream());
 
-                    logger.Info($"Received request");
-
-                    //Received Data Event
+                    //Received Data EventArgs
                     var receivedArgs = new ReceivedDataEventArgs()
                     {
                         Sender = Connection,
@@ -227,27 +232,24 @@ namespace EasyCommunication.Client.Connection
 
                     EventHandler.InvokeReceivedData(receivedArgs);
                 }
-                catch (IOException e)
+                catch (IOException)
                 {
                     logger.Error($"Socket connection for {Connection.GetIPAndPort()} was closed.");
-
                     DisconnectFromHost();
                 }
-                catch (SocketException e)
+                catch (SocketException)
                 {
                     logger.Error($"Socket connection for {Connection.GetIPAndPort()} was closed.");
-
                     DisconnectFromHost();
                 }
                 catch (SerializationException e)
                 {
                     logger.Error($"\"{e.Message}\" {Connection.GetIPAndPort()}.");
-
                     DisconnectFromHost();
                 }
                 catch
                 {
-                    logger.Error($"eee - Exception in listen:\n{Connection.GetIPAndPort()}");
+                    logger.Error($"Exception in listen:\n{Connection.GetIPAndPort()}");
                 }
             }
         }

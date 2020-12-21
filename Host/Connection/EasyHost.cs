@@ -1,9 +1,9 @@
 ﻿using EasyCommunication.Events.Host.EventArgs;
 using EasyCommunication.Events.Host.EventHandler;
 using EasyCommunication.Helper;
-using EasyCommunication.Logging;
 using EasyCommunication.SharedTypes;
 using Newtonsoft.Json;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -59,7 +59,6 @@ namespace EasyCommunication.Host.Connection
         /// </summary>
         private ILogger logger;
 
-
         /// <summary>
         /// Creates an instance of <see cref="EasyHost"/> with a Heartbeat Interval, a Listening Port and a Listening Address.
         /// </summary>
@@ -68,7 +67,33 @@ namespace EasyCommunication.Host.Connection
         /// <param name="listeningAddress">Listening Address for <see cref="TcpListener"/></param>
         public EasyHost(int heartbeatInterval, int listeningPort, IPAddress listeningAddress)
         {
-            logger = new Logger();
+            this.logger = new LoggerConfiguration()
+                .WriteTo.Console()
+                .CreateLogger();
+
+            ListeningPort = listeningPort;
+
+            Heartbeat = new Heartbeat(heartbeatInterval, logger);
+            Heartbeat.EasyHost = this;
+
+            EventHandler = new HostEventHandler();
+            ClientConnections = new Dictionary<TcpClient, int>();
+            TcpListener = new TcpListener(listeningAddress, listeningPort);
+            binaryFormatter = new BinaryFormatter();
+        }
+
+        /// <summary>
+        /// Creates an instance of <see cref="EasyHost"/> with a Heartbeat Interval, a Listening Port and a Listening Address.
+        /// </summary>
+        /// <param name="heartbeatInterval">Heartbeat Interval</param>
+        /// <param name="listeningPort">Listening Port for <see cref="TcpListener"/></param>
+        /// <param name="listeningAddress">Listening Address for <see cref="TcpListener"/></param>
+        /// <param name="logger"><see cref="ILogger"/> DI instance</param>
+        public EasyHost(int heartbeatInterval, int listeningPort, IPAddress listeningAddress, ILogger logger = null)
+        {
+            this.logger = logger ?? new LoggerConfiguration()
+                .WriteTo.Console()
+                .CreateLogger();
 
             ListeningPort = listeningPort;
 
@@ -106,10 +131,8 @@ namespace EasyCommunication.Host.Connection
         public void Close()
         {
             Heartbeat.Stop();
-
             foreach (var smth in ClientConnections)
                 smth.Key.Close();
-
             TcpListener.Stop();
         }
 
@@ -123,9 +146,7 @@ namespace EasyCommunication.Host.Connection
         public SendStatus SendData<T>(T data, TcpClient receiver)
         {
             object actualData;
-
             var isSerializable = typeof(T).IsSerializable;
-
             try
             {
                 if (!isSerializable)
@@ -133,7 +154,7 @@ namespace EasyCommunication.Host.Connection
                 else
                     actualData = data;
             }
-            catch (Exception e)
+            catch
             {
                 logger.Error($"\"{typeof(T).Name}\" -> Neither Serializable nor JsonConvert'able type.");
                 return SendStatus.Unsuccessfull;
@@ -147,7 +168,6 @@ namespace EasyCommunication.Host.Connection
                 IsSerializable = isSerializable,
                 Receiver = receiver
             };
-
             EventHandler.InvokeSendingData(sendingArgs);
 
             try
@@ -157,11 +177,10 @@ namespace EasyCommunication.Host.Connection
                 else
                     return SendStatus.Disallowed;
             }
-            catch (Exception e)
+            catch
             {
                 return SendStatus.Unsuccessfull;
             }
-
             return SendStatus.Successfull;
         }
 
@@ -171,7 +190,7 @@ namespace EasyCommunication.Host.Connection
         private void ListenForClient()
         {
             TcpListener.Start();
-            logger.Info($"Host is listening for connections on {TcpListener.GetIPv4()}:{TcpListener.GetPort()}");
+            logger.Information($"Host is listening for connections on {TcpListener.GetIPv4()}:{TcpListener.GetPort()}");
 
             for (; ; )
             {
@@ -179,11 +198,8 @@ namespace EasyCommunication.Host.Connection
                 {
                     if (!TcpListener.Server.IsBound)
                         return;
-
-
                     //Listen for clients
                     TcpClient acceptedClient = TcpListener.AcceptTcpClient();
-
                     var port = acceptedClient.GetPort();
 
                     var connectArgs = new ClientConnectedEventArgs()
@@ -192,7 +208,6 @@ namespace EasyCommunication.Host.Connection
                         Port = port,
                         Allow = true
                     };
-
                     EventHandler.InvokeClientConnected(connectArgs);
 
                     if (connectArgs.Allow)
@@ -200,13 +215,11 @@ namespace EasyCommunication.Host.Connection
                         ClientConnections.Add(acceptedClient, port);
                         Heartbeat.Heartbeats.Add(acceptedClient, 1);
 
-                        logger.Info($"Accepted connection for {acceptedClient.GetIPv4()}:{acceptedClient.GetPort()}");
                         //Handle each client individually.
                         Task.Run(() => { HandleRequests(acceptedClient); });
                     }
                     else
                     {
-                        logger.Warn($"Declined connection for {acceptedClient.GetIPv4()}:{acceptedClient.GetPort()}");
                         acceptedClient.Close();
                     }
                 }
@@ -237,12 +250,11 @@ namespace EasyCommunication.Host.Connection
                 {
                     if (!acceptedClient.Connected)
                         return;
-                    
-                    //Accept SharedInfo data from the client.
+                    //Accept data from the client.
                     var receivedData = binaryFormatter.Deserialize(acceptedClient.GetStream());
                     Task.Run(() => HandleData(receivedData, clientInfo));
                 }
-                catch (IOException e)
+                catch (IOException)
                 {
                     logger.Error($"Socket connection for {clientInfo.Value} was closed.");
 
@@ -251,7 +263,6 @@ namespace EasyCommunication.Host.Connection
                     Heartbeat.Heartbeats.Remove(clientInfo.Key);
 
                     //End connections.
-                    //acceptedClient.GetStream().Close();
                     acceptedClient.Close();
                     break;
                 }
@@ -291,7 +302,7 @@ namespace EasyCommunication.Host.Connection
         {
             try
             {
-                //Received Data Event
+                //Received Data EventArgs
                 var receivedArgs = new ReceivedDataEventArgs()
                 {
                     Sender = clientInfo.Key,

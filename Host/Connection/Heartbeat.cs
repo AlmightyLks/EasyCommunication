@@ -1,7 +1,7 @@
 ﻿using EasyCommunication.Client.Connection;
 using EasyCommunication.Helper;
-using EasyCommunication.Logging;
 using EasyCommunication.SharedTypes;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,10 +48,12 @@ namespace EasyCommunication.Host.Connection
         /// Creates an instance of <see cref="Heartbeat"/>
         /// </summary>
         /// <param name="heartbeatInterval">Interval for querying heartbeats</param>
-        /// <param name="logger">Logger DI</param>
+        /// <param name="logger"><see cref="ILogger"/> DI instance</param>
         internal Heartbeat(int heartbeatInterval, ILogger logger)
         {
-            this.logger = logger;
+            this.logger = logger ?? new LoggerConfiguration()
+                .WriteTo.Console()
+                .CreateLogger();
 
             HeartbeatInterval = heartbeatInterval;
             Heartbeats = new Dictionary<TcpClient, int>();
@@ -106,7 +108,7 @@ namespace EasyCommunication.Host.Connection
 
                     if (hbCount == 0) //If no hearbeats have been returned
                     {
-                        logger.Warn($"No hearbeats received from port {connection.Value}. Connection closed.");
+                        logger.Warning($"No hearbeats received from port {connection.Value}. Connection closed.");
 
                         //Remove from storage
                         Heartbeats.Remove(connection.Key);
@@ -142,7 +144,10 @@ namespace EasyCommunication.Host.Connection
                     //Send out Heartbeats to every client
                     SendStatus status = EasyHost.SendData(new HeartbeatPing(), connection.Key);
 
-                    logger.Info($"Heartbeat sent for {connection.Value}: {status}");
+                    if (status == SendStatus.Successfull)
+                        logger.Information($"Heartbeat sent for {connection.Value}: {status}");
+                    else
+                        logger.Warning($"Heartbeat sent for {connection.Value}: {status}");
                 }
                 catch (Exception e)
                 {
