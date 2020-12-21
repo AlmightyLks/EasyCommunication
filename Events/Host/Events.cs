@@ -7,6 +7,6 @@
         /// </summary>
         /// <typeparam name="TEvent"></typeparam>
         /// <param name="ev"></param>
-        public delegate void OnCommunicationEvent<TEvent>(TEvent ev) where TEvent : IHostEventArgs;
+        public delegate void CommunicationEvent<TEvent>(TEvent ev) where TEvent : IHostEventArgs;
     }
 }
