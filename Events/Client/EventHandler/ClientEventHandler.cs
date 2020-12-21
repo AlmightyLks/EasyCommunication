@@ -14,6 +14,11 @@ namespace EasyCommunication.Events.Client.EventHandler
         public event CommunicationEvent<ConnectedToHostEventArgs> ConnectedToHost;
 
         /// <summary>
+        /// Event fired when an <see cref="EasyCommunication.Client.Connection.EasyClient"/> loses connection from an <see cref="EasyCommunication.Host.Connection.EasyHost"/>
+        /// </summary>
+        public event CommunicationEvent<DisconnectedFromHostEventArgs> DisconnectedFromHost;
+
+        /// <summary>
         /// Event fired when data is received from an <see cref="EasyCommunication.Host.Connection.EasyHost"/>
         /// </summary>
         public event CommunicationEvent<ReceivedDataEventArgs> ReceivedData;
@@ -23,7 +28,9 @@ namespace EasyCommunication.Events.Client.EventHandler
         /// </summary>
         public event CommunicationEvent<SendingDataEventArgs> SendingData;
 
+
         internal void InvokeConnectedToHost(ConnectedToHostEventArgs ev) => ConnectedToHost?.Invoke(ev);
+        internal void InvokeDisconnectedFromHost(DisconnectedFromHostEventArgs ev) => DisconnectedFromHost?.Invoke(ev);
         internal void InvokeReceivedData(ReceivedDataEventArgs ev) => ReceivedData?.Invoke(ev);
         internal void InvokeSendingData(SendingDataEventArgs ev) => SendingData?.Invoke(ev);
     }

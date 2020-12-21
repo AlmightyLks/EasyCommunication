@@ -142,8 +142,15 @@ namespace EasyCommunication.Client.Connection
             if (!ClientConnected)
                 return;
 
+            var disconnectArgs = new DisconnectedFromHostEventArgs()
+            {
+                Connection = Connection
+            };
+            EventHandler.InvokeDisconnectedFromHost(disconnectArgs);
+
             Client.GetStream().Close();
             Client.Close();
+            Connection = null;
         }
 
         /// <summary>
