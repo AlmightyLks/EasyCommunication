@@ -14,7 +14,7 @@ namespace EasyCommunication.Events.Host.EventHandler
         public event OnCommunicationEvent<ClientConnectedEventArgs> ClientConnected;
 
         /// <summary>
-        /// Event fired when an <see cref="EasyCommunication.Client.Connection.EasyClient"/> connects
+        /// Event fired when an <see cref="EasyCommunication.Client.Connection.EasyClient"/> disconnects
         /// </summary>
         public event OnCommunicationEvent<ClientDisconnectedEventArgs> ClientDisconnected;
 
