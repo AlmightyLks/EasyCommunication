@@ -7,10 +7,12 @@ This library is based on a BinaryFormatter, so either your transmited data's typ
 A get-started example you can find [here](https://github.com/AlmightyLks/EasyCommunication/tree/Example).
 
 ---
-## Resources used / Versions used
+## Dependencies
 
-- .NET Standard       2.0  
-- Newtonsoft.Json     12.0.3  
+- .NET Standard             2.0  
+- Newtonsoft.Json           12.0.3  
+- Serilog                   2.10.0  
+- Serilog.Sinks.Console     2.10.0  
 
 ---
 
@@ -27,6 +29,8 @@ A get-started example you can find [here](https://github.com/AlmightyLks/EasyCom
   - #### [Host](https://almightylks.gitbook.io/easycommunication/home/events/host)  
     - ##### [ClientConnected](https://almightylks.gitbook.io/easycommunication/home/events/host/eventhandler/class-hosteventhandler#EasyCommunication_Events_Host_EventHandler_HostEventHandler_ClientConnected)
           - Event fired when an EasyClient connects  
+    - ##### [ClientDisconnected]()
+          - Event fired when an EasyClient disconnects  
     - ##### [ReceivedData](https://almightylks.gitbook.io/easycommunication/home/events/host/eventhandler/class-hosteventhandler#EasyCommunication_Events_Host_EventHandler_HostEventHandler_ReceivedData)
           - Event fired when data is received from an EasyClient  
     - ##### [SendingData](https://almightylks.gitbook.io/easycommunication/home/events/host/eventhandler/class-hosteventhandler#EasyCommunication_Events_Host_EventHandler_HostEventHandler_ReceivedData)
@@ -35,6 +39,8 @@ A get-started example you can find [here](https://github.com/AlmightyLks/EasyCom
   - #### [Client](https://almightylks.gitbook.io/easycommunication/home/events/host)  
     - ##### [ConnectedToHost](https://almightylks.gitbook.io/easycommunication/home/events/client/eventhandler/class-clienteventhandler#EasyCommunication_Events_Client_EventHandler_ClientEventHandler_ConnectedToHost)
           - Event fired when an EasyClient connected to an EasyHost
+    - ##### [DisconnectedFromHost]()
+          - Event fired when an EasyClient loses connection from an EasyHost
     - ##### [ReceivedData](https://almightylks.gitbook.io/easycommunication/home/events/client/eventhandler/class-clienteventhandler#EasyCommunication_Events_Client_EventHandler_ClientEventHandler_ReceivedData)
           - Event fired when data is received from an EasyHost
     - ##### [SendingData](https://almightylks.gitbook.io/easycommunication/home/events/client/eventhandler/class-clienteventhandler#EasyCommunication_Events_Client_EventHandler_ClientEventHandler_SendingData)
