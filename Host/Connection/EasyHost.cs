@@ -30,8 +30,7 @@ namespace EasyCommunication.Host.Connection
         public TcpListener TcpListener { get; private set; }
 
         /// <summary>
-        /// All Connections with received Heartbeats since last query,
-        /// used by <see cref="Connection.Heartbeat"/>.
+        /// All Connections with their initial port
         /// </summary>
         public Dictionary<TcpClient, int> ClientConnections { get; private set; }
 

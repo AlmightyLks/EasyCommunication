@@ -1,4 +1,5 @@
-﻿using EasyCommunication.Helper;
+﻿using EasyCommunication.Client.Connection;
+using EasyCommunication.Helper;
 using EasyCommunication.Logging;
 using EasyCommunication.SharedTypes;
 using System;
@@ -13,15 +14,41 @@ using System.Timers;
 
 namespace EasyCommunication.Host.Connection
 {
+    /// <summary>
+    /// Heartbeat class, responsible for heartbeating connected <see cref="EasyClient"/>s
+    /// </summary>
     internal class Heartbeat
     {
+        /// <summary>
+        /// Clients and their amount of heartbeats since last query
+        /// </summary>
         internal Dictionary<TcpClient, int> Heartbeats { get; private set; }
+
+        /// <summary>
+        /// <see cref="Connection.EasyHost"/> instance, providing connected <see cref="EasyClient"/>s
+        /// </summary>
         internal EasyHost EasyHost { get; set; }
+
+        /// <summary>
+        /// Interval for querying heartbeats
+        /// </summary>
         internal int HeartbeatInterval { get; set; }
 
+        /// <summary>
+        /// Timer responsible for <see cref="HeartbeatInterval"/>
+        /// </summary>
         private Timer heartbeatTimer;
+
+        /// <summary>
+        /// <see cref="ILogger"/> instance, responsible for logging
+        /// </summary>
         private ILogger logger;
 
+        /// <summary>
+        /// Creates an instance of <see cref="Heartbeat"/>
+        /// </summary>
+        /// <param name="heartbeatInterval">Interval for querying heartbeats</param>
+        /// <param name="logger">Logger DI</param>
         internal Heartbeat(int heartbeatInterval, ILogger logger)
         {
             this.logger = logger;
@@ -34,6 +61,9 @@ namespace EasyCommunication.Host.Connection
             Start();
         }
 
+        /// <summary>
+        /// Start <see cref="heartbeatTimer"/>
+        /// </summary>
         internal void Start()
         {
             if (heartbeatTimer != null)
@@ -45,6 +75,9 @@ namespace EasyCommunication.Host.Connection
             heartbeatTimer.AutoReset = true;
             heartbeatTimer.Start();
         }
+        /// <summary>
+        /// Stop <see cref="heartbeatTimer"/>
+        /// </summary>
         internal void Stop()
         {
             heartbeatTimer.Elapsed -= HeartbeatTimer_Elapsed;
@@ -52,8 +85,16 @@ namespace EasyCommunication.Host.Connection
             heartbeatTimer.Dispose();
         }
 
+        /// <summary>
+        /// Elapsed <see cref="heartbeatTimer"/> event-method
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void HeartbeatTimer_Elapsed(object sender, ElapsedEventArgs e)
             => Task.Run(() => CheckHeartbeats());
+        /// <summary>
+        /// Check all for dead connections and resend heartbeats
+        /// </summary>
         private void CheckHeartbeats()
         {
             try
@@ -86,6 +127,9 @@ namespace EasyCommunication.Host.Connection
                 logger.Error($"Exception in Check Heartbeats:\n{e}");
             }
         }
+        /// <summary>
+        /// Send every connected TcpClient a heartbeat, if connected
+        /// </summary>
         private void SendHeartbeats()
         {
             foreach (var connection in EasyHost.ClientConnections.ToArray())
