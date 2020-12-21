@@ -29,7 +29,7 @@ A get-started example you can find [here](https://github.com/AlmightyLks/EasyCom
   - #### [Host](https://almightylks.gitbook.io/easycommunication/home/events/host)  
     - ##### [ClientConnected](https://almightylks.gitbook.io/easycommunication/home/events/host/eventhandler/class-hosteventhandler#EasyCommunication_Events_Host_EventHandler_HostEventHandler_ClientConnected)
           - Event fired when an EasyClient connects  
-    - ##### [ClientDisconnected]()
+    - ##### [ClientDisconnected](https://almightylks.gitbook.io/easycommunication/home/events/host/eventhandler/untitled#EasyCommunication_Events_Host_EventHandler_HostEventHandler_ClientDisconnected)
           - Event fired when an EasyClient disconnects  
     - ##### [ReceivedData](https://almightylks.gitbook.io/easycommunication/home/events/host/eventhandler/class-hosteventhandler#EasyCommunication_Events_Host_EventHandler_HostEventHandler_ReceivedData)
           - Event fired when data is received from an EasyClient  
@@ -39,7 +39,7 @@ A get-started example you can find [here](https://github.com/AlmightyLks/EasyCom
   - #### [Client](https://almightylks.gitbook.io/easycommunication/home/events/host)  
     - ##### [ConnectedToHost](https://almightylks.gitbook.io/easycommunication/home/events/client/eventhandler/class-clienteventhandler#EasyCommunication_Events_Client_EventHandler_ClientEventHandler_ConnectedToHost)
           - Event fired when an EasyClient connected to an EasyHost
-    - ##### [DisconnectedFromHost]()
+    - ##### [DisconnectedFromHost](https://almightylks.gitbook.io/easycommunication/home/events/client/eventhandler/untitled#EasyCommunication_Events_Client_EventHandler_ClientEventHandler_DisconnectedFromHost)
           - Event fired when an EasyClient loses connection from an EasyHost
     - ##### [ReceivedData](https://almightylks.gitbook.io/easycommunication/home/events/client/eventhandler/class-clienteventhandler#EasyCommunication_Events_Client_EventHandler_ClientEventHandler_ReceivedData)
           - Event fired when data is received from an EasyHost
