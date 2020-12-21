@@ -3,13 +3,15 @@
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<Version>0.9.2</Version>
+		<Version>0.9.1</Version>
 		<Authors>EasyCommunication</Authors>
 		<Company>AlmightyLks</Company>
 		<Copyright>AlmightyLks</Copyright>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageProjectUrl>https://github.com/AlmightyLks/EasyCommunication/</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/AlmightyLks/EasyCommunication/</RepositoryUrl>
+		<AssemblyVersion>0.9.1.0</AssemblyVersion>
+		<FileVersion>0.9.1.0</FileVersion>
 	</PropertyGroup>
 
 	<ItemGroup>
