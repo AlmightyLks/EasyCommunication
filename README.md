@@ -30,7 +30,7 @@ A get-started example you can find [here](https://github.com/AlmightyLks/EasyCom
     - ##### [ClientConnected](https://almightylks.gitbook.io/easycommunication/home/events/host/eventhandler/class-hosteventhandler#EasyCommunication_Events_Host_EventHandler_HostEventHandler_ClientConnected)
           - Event fired when an EasyClient connects  
     - ##### [ClientDisconnected]()
-          - Event fired when an EasyClient connects  
+          - Event fired when an EasyClient disconnects  
     - ##### [ReceivedData](https://almightylks.gitbook.io/easycommunication/home/events/host/eventhandler/class-hosteventhandler#EasyCommunication_Events_Host_EventHandler_HostEventHandler_ReceivedData)
           - Event fired when data is received from an EasyClient  
     - ##### [SendingData](https://almightylks.gitbook.io/easycommunication/home/events/host/eventhandler/class-hosteventhandler#EasyCommunication_Events_Host_EventHandler_HostEventHandler_ReceivedData)
