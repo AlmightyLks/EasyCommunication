@@ -65,20 +65,6 @@ namespace EasyCommunication.Client.Connection
         /// <summary>
         /// Creates an instance of <see cref="EasyClient"/>
         /// </summary>
-        public EasyClient()
-        {
-            this.logger = new LoggerConfiguration()
-                .WriteTo.Console()
-                .CreateLogger();
-
-            Connection = null;
-            Client = new TcpClient();
-            binaryFormatter = new BinaryFormatter();
-            EventHandler = new ClientEventHandler();
-        }
-        /// <summary>
-        /// Creates an instance of <see cref="EasyClient"/>
-        /// </summary>
         /// <param name="logger"><see cref="ILogger"/> DI instance</param>
         public EasyClient(ILogger logger = null)
         {

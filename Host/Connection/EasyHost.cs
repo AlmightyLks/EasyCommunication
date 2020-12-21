@@ -59,28 +59,6 @@ namespace EasyCommunication.Host.Connection
         /// </summary>
         private ILogger logger;
 
-        /// <summary>
-        /// Creates an instance of <see cref="EasyHost"/> with a Heartbeat Interval, a Listening Port and a Listening Address.
-        /// </summary>
-        /// <param name="heartbeatInterval">Heartbeat Interval</param>
-        /// <param name="listeningPort">Listening Port for <see cref="TcpListener"/></param>
-        /// <param name="listeningAddress">Listening Address for <see cref="TcpListener"/></param>
-        public EasyHost(int heartbeatInterval, int listeningPort, IPAddress listeningAddress)
-        {
-            this.logger = new LoggerConfiguration()
-                .WriteTo.Console()
-                .CreateLogger();
-
-            ListeningPort = listeningPort;
-
-            Heartbeat = new Heartbeat(heartbeatInterval, logger);
-            Heartbeat.EasyHost = this;
-
-            EventHandler = new HostEventHandler();
-            ClientConnections = new Dictionary<TcpClient, int>();
-            TcpListener = new TcpListener(listeningAddress, listeningPort);
-            binaryFormatter = new BinaryFormatter();
-        }
 
         /// <summary>
         /// Creates an instance of <see cref="EasyHost"/> with a Heartbeat Interval, a Listening Port and a Listening Address.
