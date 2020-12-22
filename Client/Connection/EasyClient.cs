@@ -80,21 +80,21 @@ namespace EasyCommunication.Client.Connection
 
 
         /// <summary>
-        /// Connect to an <see cref="EasyCommunication.Host.Connection.EasyHost"/>
+        /// Connect to an <see cref="EasyHost"/>
         /// </summary>
         /// <param name="address">IPAddress to connect to</param>
         /// <param name="port">Port to connect to</param>
-        public void ConnectToHost(IPAddress address, int port)
+        /// <returns>Whether the connection has been established or not</returns>
+        public bool ConnectToHost(IPAddress address, int port)
         {
             //If the client, for whatever reason, disconnected - Reconnect.
             if (ClientConnected)
-                return;
+                return false;
 
             RequestListening?.Dispose();    //Stop heartingbeating for old client
             Client = new TcpClient();       //Reset client
 
-            Connection = new Connection() { IPAddress = address, Port = port };
-
+            bool result;
             try
             {
                 Client.Connect(address, port);
@@ -106,18 +106,26 @@ namespace EasyCommunication.Client.Connection
                 {
                     DisconnectFromHost();
                     logger.Warning($"Connection attempt aborted");
+                    result = false;
                 }
                 else
                 {
                     StartListening();
                     logger.Information($"Connection attempt successfull");
+                    result = true;
                 }
             }
             catch
             {
                 Connection = null;
                 logger.Error($"Connection attempt failed");
+                result = false;
             }
+
+            if (result)
+                Connection = new Connection() { IPAddress = address, Port = port };
+
+            return result;
         }
 
         /// <summary>
