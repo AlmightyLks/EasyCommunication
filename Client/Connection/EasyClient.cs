@@ -2,9 +2,9 @@
 using EasyCommunication.Events.Client.EventHandler;
 using EasyCommunication.Helper;
 using EasyCommunication.Host.Connection;
+using EasyCommunication.Logging;
 using EasyCommunication.SharedTypes;
 using Newtonsoft.Json;
-using Serilog;
 using System;
 using System.IO;
 using System.Net;
@@ -66,11 +66,9 @@ namespace EasyCommunication.Client.Connection
         /// Creates an instance of <see cref="EasyClient"/>
         /// </summary>
         /// <param name="logger"><see cref="ILogger"/> DI instance</param>
-        public EasyClient(ILogger logger = null)
+        public EasyClient()
         {
-            this.logger = logger ?? new LoggerConfiguration()
-                .WriteTo.Console()
-                .CreateLogger();
+            logger = new Logger();
 
             Connection = null;
             Client = new TcpClient();
@@ -105,13 +103,13 @@ namespace EasyCommunication.Client.Connection
                 if (cntArgs.Abort)
                 {
                     DisconnectFromHost();
-                    logger.Warning($"Connection attempt aborted");
+                    logger.Warn($"Connection attempt aborted");
                     result = false;
                 }
                 else
                 {
                     StartListening();
-                    logger.Information($"Connection attempt successfull");
+                    logger.Info($"Connection attempt successfull");
                     result = true;
                 }
             }

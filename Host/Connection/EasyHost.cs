@@ -1,9 +1,9 @@
 ﻿using EasyCommunication.Events.Host.EventArgs;
 using EasyCommunication.Events.Host.EventHandler;
 using EasyCommunication.Helper;
+using EasyCommunication.Logging;
 using EasyCommunication.SharedTypes;
 using Newtonsoft.Json;
-using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -67,15 +67,13 @@ namespace EasyCommunication.Host.Connection
         /// <param name="listeningPort">Listening Port for <see cref="TcpListener"/></param>
         /// <param name="listeningAddress">Listening Address for <see cref="TcpListener"/></param>
         /// <param name="logger"><see cref="ILogger"/> DI instance</param>
-        public EasyHost(int heartbeatInterval, int listeningPort, IPAddress listeningAddress, ILogger logger = null)
+        public EasyHost(int heartbeatInterval, int listeningPort, IPAddress listeningAddress)
         {
-            this.logger = logger ?? new LoggerConfiguration()
-                .WriteTo.Console()
-                .CreateLogger();
+            logger = new Logger();
 
             ListeningPort = listeningPort;
 
-            Heartbeat = new Heartbeat(heartbeatInterval, logger);
+            Heartbeat = new Heartbeat(heartbeatInterval);
             Heartbeat.EasyHost = this;
 
             EventHandler = new HostEventHandler();
@@ -168,7 +166,7 @@ namespace EasyCommunication.Host.Connection
         private void ListenForClient()
         {
             TcpListener.Start();
-            logger.Information($"Host is listening for connections on {TcpListener.GetIPv4()}:{TcpListener.GetPort()}");
+            logger.Info($"Host is listening for connections on {TcpListener.GetIPv4()}:{TcpListener.GetPort()}");
 
             for (; ; )
             {
