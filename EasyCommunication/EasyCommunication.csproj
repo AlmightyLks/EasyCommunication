@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>netstandard2.0</TargetFramework>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<Version>0.9.1</Version>
+		<Authors>EasyCommunication</Authors>
+		<Company>AlmightyLks</Company>
+		<Copyright>AlmightyLks</Copyright>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<PackageProjectUrl>https://github.com/AlmightyLks/EasyCommunication/</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/AlmightyLks/EasyCommunication/</RepositoryUrl>
+		<AssemblyVersion>0.9.1.0</AssemblyVersion>
+		<FileVersion>0.9.1.0</FileVersion>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+		<PackageReference Include="protobuf-net" Version="3.0.73" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="LICENSE">
+	    <Pack>True</Pack>
+	    <PackagePath></PackagePath>
+	  </None>
+	</ItemGroup>
+
+</Project>
