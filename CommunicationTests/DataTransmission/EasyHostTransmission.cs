@@ -1,12 +1,10 @@
 ﻿using EasyCommunication.Client.Connection;
 using EasyCommunication.Events.Client.EventArgs;
 using EasyCommunication.Host.Connection;
-using EasyCommunication.Serialization;
 using EasyCommunication.SharedTypes;
 using Newtonsoft.Json;
 using ProtoBuf;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;

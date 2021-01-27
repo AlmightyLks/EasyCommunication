@@ -3,17 +3,13 @@ using EasyCommunication.Events.Client.EventHandler;
 using EasyCommunication.Helper;
 using EasyCommunication.Host.Connection;
 using EasyCommunication.Logging;
-using EasyCommunication.Serialization;
 using EasyCommunication.SharedTypes;
-using Newtonsoft.Json;
-using ProtoBuf;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,7 +22,7 @@ namespace EasyCommunication.Client.Connection
     /// <remarks>
     /// <para>Send and receive data from a connected <see cref="EasyHost"/></para>
     /// </remarks>
-    public class EasyClient : IEasyClient
+    public sealed class EasyClient : IEasyClient
     {
         /// <summary>
         /// 
@@ -302,13 +298,9 @@ namespace EasyCommunication.Client.Connection
                     if (Client != null && !Client.Connected)
                         CloseConnection();
                 }
-                catch (SerializationException e)
-                {
-                    Debug.WriteLine($"EasyClient: \"{e.Message}\" {Connection.GetIPAndPort()}.");
-                }
                 catch (Exception e)
                 {
-                    Debug.WriteLine($"EasyClient: eee - Exception in listen:\n{Connection.GetIPAndPort()}\n{e}");
+                    Debug.WriteLine($"EasyClient: Exception in listen:\n{Connection.GetIPAndPort()}\n{e}");
                 }
             }
         }

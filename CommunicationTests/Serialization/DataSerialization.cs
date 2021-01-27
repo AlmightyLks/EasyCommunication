@@ -1,11 +1,7 @@
-﻿using EasyCommunication.Serialization;
+﻿using EasyCommunication.Helper;
 using EasyCommunication.SharedTypes;
 using ProtoBuf;
-using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Numerics;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 

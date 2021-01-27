@@ -1,24 +1,19 @@
 ﻿using EasyCommunication.Client.Connection;
-using EasyCommunication.Helper;
 using EasyCommunication.Logging;
 using EasyCommunication.SharedTypes;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Net;
 using System.Net.Sockets;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
 using System.Threading.Tasks;
-using System.Timers;
 
 namespace EasyCommunication.Host.Connection
 {
     /// <summary>
     /// Heartbeat class, responsible for heartbeating connected <see cref="EasyClient"/>s
     /// </summary>
-    internal class Heartbeat : IDisposable
+    internal sealed class Heartbeat : IDisposable
     {
         /// <summary>
         /// Clients and their amount of heartbeats since last query
@@ -40,6 +35,9 @@ namespace EasyCommunication.Host.Connection
         /// </summary>
         private ILogger logger;
 
+        /// <summary>
+        /// 
+        /// </summary>
         private bool isDisposed;
 
         /// <summary>
@@ -128,12 +126,16 @@ namespace EasyCommunication.Host.Connection
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void Dispose()
         {
             if (isDisposed)
                 return;
 
             isDisposed = true;
+            EasyHost = null;
         }
     }
 }

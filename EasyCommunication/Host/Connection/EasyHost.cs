@@ -2,10 +2,7 @@
 using EasyCommunication.Events.Host.EventHandler;
 using EasyCommunication.Helper;
 using EasyCommunication.Logging;
-using EasyCommunication.Serialization;
 using EasyCommunication.SharedTypes;
-using Newtonsoft.Json;
-using ProtoBuf;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -15,8 +12,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace EasyCommunication.Host.Connection
@@ -27,7 +22,7 @@ namespace EasyCommunication.Host.Connection
     /// <remarks>
     /// <para>Send and receive data from connected clients</para>
     /// </remarks>
-    public class EasyHost : IEasyHost
+    public sealed class EasyHost : IEasyHost
     {
         /// <summary>
         /// 
@@ -328,11 +323,6 @@ namespace EasyCommunication.Host.Connection
                         acceptedClient.Close();
                         EventHandler.InvokeClientDisconnected(new ClientDisconnectedEventArgs() { Client = acceptedClient, Port = clientInfo.Value });
                     }
-                    break;
-                }
-                catch (SerializationException e)
-                {
-                    Debug.WriteLine($"({clientInfo.Value}) EasyHost in HandleRequests threw:\n{e}");
                     break;
                 }
                 catch (InvalidOperationException e)

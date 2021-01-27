@@ -2,15 +2,22 @@
 using Newtonsoft.Json;
 using ProtoBuf;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Text;
 
-namespace EasyCommunication.Serialization
+namespace EasyCommunication.Helper
 {
     public static class SerializationHelper
     {
+        /// <summary>
+        /// Responsible for getting the buffer depending on generic data and datatype
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="data">Data to turn into a buffer</param>
+        /// <param name="dataType">Specification of data type</param>
+        /// <param name="encoding">Specify used Encoding for String serialization. Default: UTF8</param>
+        /// <returns>Buffer from given data</returns>
         public static byte[] GetBuffer<T>(T data, DataType dataType, Encoding encoding = null)
         {
             encoding = encoding ?? Encoding.UTF8;
