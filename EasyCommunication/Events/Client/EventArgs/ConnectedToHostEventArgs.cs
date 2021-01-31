@@ -1,4 +1,4 @@
-﻿using EasyCommunication.Client.Connection;
+﻿using EasyCommunication.Client;
 using System.Net.Sockets;
 
 namespace EasyCommunication.Events.Client.EventArgs

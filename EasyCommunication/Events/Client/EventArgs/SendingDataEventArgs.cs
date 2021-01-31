@@ -1,4 +1,4 @@
-﻿using EasyCommunication.Client.Connection;
+﻿using EasyCommunication.Client;
 using EasyCommunication.SharedTypes;
 using System;
 using System.Net;

@@ -1,5 +1,5 @@
-﻿using EasyCommunication.Client.Connection;
-using EasyCommunication.Host.Connection;
+﻿using EasyCommunication.Client;
+using EasyCommunication.Host;
 using Moq;
 using System.Net;
 using System.Threading.Tasks;
@@ -14,7 +14,7 @@ namespace CommunicationTests.Connection
         [Fact]
         public void ConnectedFalseWhenNotConnected()
         {
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 1; i++)
             {
                 var easyClient = new EasyClient();
                 Assert.False(easyClient.ClientConnected);
@@ -23,19 +23,19 @@ namespace CommunicationTests.Connection
         [Fact]
         public async Task ConnectedTrueWhenConnected()
         {
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 1; i++)
             {
                 var host = new EasyHost(500, 9000, IPAddress.Loopback);
                 host.Open();
 
                 //Buffer
-                await Task.Delay(10);
+                await Task.Delay(5);
 
                 var client = new EasyClient();
                 client.ConnectToHost(IPAddress.Loopback, 9000);
 
                 //Buffer
-                await Task.Delay(10);
+                await Task.Delay(5);
 
                 Assert.True(client.ClientConnected);
                 client.DisconnectFromHost();
@@ -45,24 +45,24 @@ namespace CommunicationTests.Connection
         [Fact]
         public async Task ConnectedFalseWhenDisconnected()
         {
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 1; i++)
             {
                 var host = new EasyHost(500, 9001, IPAddress.Loopback);
                 host.Open();
 
                 //Buffer
-                await Task.Delay(10);
+                await Task.Delay(5);
 
                 var client = new EasyClient();
                 client.ConnectToHost(IPAddress.Loopback, 9001);
 
                 //Buffer
-                await Task.Delay(10);
+                await Task.Delay(5);
 
                 client.DisconnectFromHost();
 
                 //Buffer
-                await Task.Delay(10);
+                await Task.Delay(5);
 
                 Assert.False(client.ClientConnected);
                 host.Close();
@@ -71,19 +71,19 @@ namespace CommunicationTests.Connection
         [Fact]
         public async Task ConnectTrueWhenReconnect()
         {
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 1; i++)
             {
                 var host = new EasyHost(500, 9002, IPAddress.Loopback);
                 host.Open();
 
                 //Buffer
-                await Task.Delay(10);
+                await Task.Delay(5);
 
                 var client = new EasyClient();
                 client.ConnectToHost(IPAddress.Loopback, 9002);
 
                 //Buffer
-                await Task.Delay(10);
+                await Task.Delay(5);
                 client.DisconnectFromHost();
 
                 //Buffer

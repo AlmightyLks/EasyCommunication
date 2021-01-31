@@ -1,6 +1,6 @@
-﻿using EasyCommunication.Client.Connection;
+﻿using EasyCommunication.Client;
 using EasyCommunication.Events.Host.EventArgs;
-using EasyCommunication.Host.Connection;
+using EasyCommunication.Host;
 using EasyCommunication.SharedTypes;
 using System;
 using System.Collections.Generic;
@@ -19,7 +19,7 @@ namespace CommunicationTests.Events
         [Fact]
         public async Task TriggerClientConnected()
         {
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 1; i++)
             {
                 int triggered = 0;
                 var host = new EasyHost(2000, 9250, IPAddress.Loopback);
@@ -33,7 +33,7 @@ namespace CommunicationTests.Events
                 client.ConnectToHost(IPAddress.Loopback, 9250);
 
                 //Buffer for connection & event
-                await Task.Delay(10);
+                await Task.Delay(5);
                 Assert.True(triggered == 1);
                 client.DisconnectFromHost();
                 host.Close();
@@ -42,7 +42,7 @@ namespace CommunicationTests.Events
         [Fact]
         public async Task TriggerClientDisconnected()
         {
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 1; i++)
             {
                 int triggered = 0;
                 var host = new EasyHost(2000, 9251, IPAddress.Loopback);
@@ -57,7 +57,7 @@ namespace CommunicationTests.Events
                 client.DisconnectFromHost();
 
                 //Buffer for connection & event
-                await Task.Delay(100);
+                await Task.Delay(5);
                 Assert.True(triggered == 1);
                 host.Close();
             }
@@ -65,7 +65,7 @@ namespace CommunicationTests.Events
         [Fact]
         public async Task TriggerReceivedData()
         {
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 1; i++)
             {
                 int triggered = 0;
                 var host = new EasyHost(2000, 9252, IPAddress.Loopback);
@@ -77,11 +77,11 @@ namespace CommunicationTests.Events
                     triggered++;
                 };
                 client.ConnectToHost(IPAddress.Loopback, 9252);
-                await Task.Delay(10);
+                await Task.Delay(5);
                 client.QueueData("Good evening", DataType.String);
 
                 //Buffer for connection & event
-                await Task.Delay(100);
+                await Task.Delay(5);
                 Assert.True(triggered == 1);
                 host.Close();
                 client.DisconnectFromHost();
@@ -90,7 +90,7 @@ namespace CommunicationTests.Events
         [Fact]
         public async Task TriggerSendingData()
         {
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 1; i++)
             {
                 int triggered = 0;
                 var host = new EasyHost(2000, 9253, IPAddress.Loopback);
@@ -102,11 +102,11 @@ namespace CommunicationTests.Events
                     triggered++;
                 };
                 client.ConnectToHost(IPAddress.Loopback, 9253);
-                await Task.Delay(10);
+                await Task.Delay(5);
                 host.QueueData("Good evening", host.ClientConnections.Keys.ToArray()[0], DataType.String);
 
                 //Buffer for connection & event
-                await Task.Delay(100);
+                await Task.Delay(5);
                 Assert.True(triggered == 1);
                 host.Close();
                 client.DisconnectFromHost();
@@ -115,7 +115,7 @@ namespace CommunicationTests.Events
         [Fact]
         public async Task ReceivedDataIdentical()
         {
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 1; i++)
             {
                 bool equals = false;
                 var host = new EasyHost(2000, 9254, IPAddress.Loopback);
@@ -128,11 +128,11 @@ namespace CommunicationTests.Events
                     equals = (data == Encoding.UTF8.GetString(ev.Data));
                 };
                 client.ConnectToHost(IPAddress.Loopback, 9254);
-                await Task.Delay(10);
+                await Task.Delay(5);
                 host.QueueData(data, host.ClientConnections.Keys.ToArray()[0], DataType.String);
 
                 //Buffer for connection & event
-                await Task.Delay(100);
+                await Task.Delay(5);
                 Assert.True(equals);
                 host.Close();
                 client.DisconnectFromHost();

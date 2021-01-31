@@ -1,5 +1,5 @@
-﻿using EasyCommunication.Client.Connection;
-using EasyCommunication.Host.Connection;
+﻿using EasyCommunication.Client;
+using EasyCommunication.Host;
 using System;
 using System.Diagnostics;
 using System.Net;
@@ -16,13 +16,13 @@ namespace CommunicationTests.Connection
         [Fact]
         public async Task StartsListeningOnOpen()
         {
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 1; i++)
             {
                 var host = new EasyHost(500, 9050, IPAddress.Loopback);
                 host.Open();
 
                 //Buffer
-                await Task.Delay(10);
+                await Task.Delay(5);
                 Assert.True(host.Listening);
                 host.Close();
             }
@@ -30,35 +30,35 @@ namespace CommunicationTests.Connection
         [Fact]
         public async Task StopsListeningOnClose()
         {
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 1; i++)
             {
                 var host = new EasyHost(500, 9051, IPAddress.Loopback);
                 host.Open();
 
                 //Buffer
-                await Task.Delay(10);
+                await Task.Delay(5);
                 host.Close();
 
                 //Buffer
-                await Task.Delay(10);
+                await Task.Delay(5);
                 Assert.False(host.Listening);
             }
         }
         [Fact]
         public async Task ClientConnectionAddedWhenConnected()
         {
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 1; i++)
             {
                 var host = new EasyHost(500, 9052, IPAddress.Loopback);
                 host.Open();
 
                 //Buffer
-                await Task.Delay(10);
+                await Task.Delay(5);
                 var client = new EasyClient();
                 client.ConnectToHost(IPAddress.Loopback, 9052);
 
                 //Buffer
-                await Task.Delay(10);
+                await Task.Delay(5);
                 Assert.True(host.ClientConnections.Count == 1);
                 client.DisconnectFromHost();
                 host.Close();
@@ -67,13 +67,13 @@ namespace CommunicationTests.Connection
         [Fact]
         public async Task TwoClientsConnectToHost()
         {
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 1; i++)
             {
                 var host = new EasyHost(500, 9053, IPAddress.Loopback);
                 host.Open();
 
                 //Buffer
-                await Task.Delay(10);
+                await Task.Delay(5);
                 var clientOne = new EasyClient();
                 var clientTwo = new EasyClient();
                 clientOne.ConnectToHost(IPAddress.Loopback, 9053);
@@ -91,7 +91,7 @@ namespace CommunicationTests.Connection
         [Fact]
         public async Task ClientReconnects()
         {
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 1; i++)
             {
                 var host = new EasyHost(500, 9054, IPAddress.Loopback);
                 host.Open();
@@ -100,7 +100,7 @@ namespace CommunicationTests.Connection
                 client.ConnectToHost(IPAddress.Loopback, 9054);
 
                 //Buffer
-                await Task.Delay(10);
+                await Task.Delay(5);
                 client.DisconnectFromHost();
 
                 //Buffer
@@ -117,20 +117,20 @@ namespace CommunicationTests.Connection
         [Fact]
         public async Task HeartbeatTimeout()
         {
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 1; i++)
             {
                 var host = new EasyHost(250, 9055, IPAddress.Loopback);
                 host.Open();
 
                 //Buffer
-                await Task.Delay(10);
+                await Task.Delay(5);
 
                 //Simulate EasyHost connecting but not responding to heartbeats
                 using (var client = new TcpClient())
                     client.Connect(IPAddress.Loopback, 9055);
 
                 //Buffer
-                await Task.Delay(10);
+                await Task.Delay(5);
 
                 //Cause intentional timeout
                 await Task.Delay(350);
@@ -145,7 +145,7 @@ namespace CommunicationTests.Connection
             var host1 = new EasyHost(250, 9056, IPAddress.Loopback);
             var host2 = new EasyHost(250, 9056, IPAddress.Loopback);
             host1.Open();
-            await Task.Delay(100);
+            await Task.Delay(5);
             Assert.Throws<SocketException>(() => host2.Open());
         }
         [Fact]
@@ -157,18 +157,18 @@ namespace CommunicationTests.Connection
                 host.Open();
 
                 //Buffer
-                await Task.Delay(10);
+                await Task.Delay(5);
                 var client1 = new EasyClient();
                 var client2 = new EasyClient();
                 client1.ConnectToHost(IPAddress.Loopback, 9057);
                 client2.ConnectToHost(IPAddress.Loopback, 9057);
 
                 //Buffer
-                await Task.Delay(10);
+                await Task.Delay(5);
                 client1.DisconnectFromHost();
 
                 //Buffer
-                await Task.Delay(100);
+                await Task.Delay(5);
                 client1.ConnectToHost(IPAddress.Loopback, 9057);
 
                 await CheckConnectionCount(host, 2, 250, 10);

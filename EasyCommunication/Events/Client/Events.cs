@@ -3,7 +3,7 @@
     public class Events
     {
         /// <summary>
-        /// Delegate for Communication Events for the <see cref="EasyCommunication.Client.Connection.EasyClient"/>
+        /// Delegate for Communication Events for the <see cref="EasyCommunication.Client.EasyClient"/>
         /// </summary>
         /// <typeparam name="TEvent"></typeparam>
         /// <param name="ev"></param>

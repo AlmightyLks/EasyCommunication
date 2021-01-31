@@ -1,4 +1,4 @@
-﻿using EasyCommunication.Client.Connection;
+﻿using EasyCommunication.Client;
 using System;
 using System.Collections.Generic;
 using System.Net;

@@ -1,5 +1,5 @@
-﻿using EasyCommunication.Client.Connection;
-using EasyCommunication.Host.Connection;
+﻿using EasyCommunication.Client;
+using EasyCommunication.Host;
 using EasyCommunication.SharedTypes;
 using System;
 using System.Net;
@@ -20,16 +20,16 @@ namespace CommunicationTests.Queue
             host.Open();
 
             //Buffer
-            await Task.Delay(10);
+            await Task.Delay(5);
             var client = new EasyClient();
             client.ConnectToHost(IPAddress.Loopback, 9150);
 
             //Buffer
-            await Task.Delay(10);
+            await Task.Delay(5);
             QueueStatus status = client.QueueData(new Random(), DataType.ProtoBuf);
 
             //Buffer
-            await Task.Delay(10);
+            await Task.Delay(5);
             Assert.True(status == QueueStatus.IllegalFormat);
             client.DisconnectFromHost();
             host.Close();
@@ -41,12 +41,12 @@ namespace CommunicationTests.Queue
             host.Open();
 
             //Buffer
-            await Task.Delay(10);
+            await Task.Delay(5);
             var client = new EasyClient();
             client.ConnectToHost(IPAddress.Loopback, 9151);
 
             //Buffer
-            await Task.Delay(10);
+            await Task.Delay(5);
 
             QueueStatus status = client.QueueData("", DataType.String);
             Assert.True(status == QueueStatus.Queued);
@@ -63,7 +63,7 @@ namespace CommunicationTests.Queue
             client.ConnectToHost(IPAddress.Loopback, 9152);
 
             //Buffer
-            await Task.Delay(10);
+            await Task.Delay(5);
             //Exceed Buffer
             QueueStatus status = client.QueueData(Encoding.UTF8.GetString(new byte[] { 1, 1, 1, 1 }), DataType.String);
 
@@ -75,11 +75,11 @@ namespace CommunicationTests.Queue
         public async Task QueueStatusNotOpen()
         {
             //Buffer
-            await Task.Delay(10);
+            await Task.Delay(5);
             var client = new EasyClient();
 
             //Buffer
-            await Task.Delay(10);
+            await Task.Delay(5);
 
             QueueStatus status = client.QueueData("", DataType.String);
             Assert.True(status == QueueStatus.NotOpen);

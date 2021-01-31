@@ -4,27 +4,27 @@ using static EasyCommunication.Events.Host.Events;
 namespace EasyCommunication.Events.Host.EventHandler
 {
     /// <summary>
-    /// EventHandler for <see cref="EasyCommunication.Host.Connection.EasyHost"/>-Events
+    /// EventHandler for <see cref="EasyCommunication.Host.EasyHost"/>-Events
     /// </summary>
     public class HostEventHandler
     {
         /// <summary>
-        /// Event fired when an <see cref="EasyCommunication.Client.Connection.EasyClient"/> connects
+        /// Event fired when an <see cref="EasyCommunication.Client.EasyClient"/> connects
         /// </summary>
         public event CommunicationEvent<ClientConnectedEventArgs> ClientConnected;
 
         /// <summary>
-        /// Event fired when an <see cref="EasyCommunication.Client.Connection.EasyClient"/> disconnects
+        /// Event fired when an <see cref="EasyCommunication.Client.EasyClient"/> disconnects
         /// </summary>
         public event CommunicationEvent<ClientDisconnectedEventArgs> ClientDisconnected;
 
         /// <summary>
-        /// Event fired when data is received from an <see cref="EasyCommunication.Client.Connection.EasyClient"/>
+        /// Event fired when data is received from an <see cref="EasyCommunication.Client.EasyClient"/>
         /// </summary>
         public event CommunicationEvent<ReceivedDataEventArgs> ReceivedData;
 
         /// <summary>
-        /// Event fired when an <see cref="EasyCommunication.Host.Connection.EasyHost"/> is sending data to an <see cref="EasyCommunication.Client.Connection.EasyClient"/>
+        /// Event fired when an <see cref="EasyCommunication.Host.EasyHost"/> is sending data to an <see cref="EasyCommunication.Client.EasyClient"/>
         /// </summary>
         public event CommunicationEvent<SendingDataEventArgs> SendingData;
 

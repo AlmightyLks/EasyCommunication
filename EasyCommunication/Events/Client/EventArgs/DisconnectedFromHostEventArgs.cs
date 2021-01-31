@@ -1,10 +1,9 @@
-﻿using EasyCommunication.Client.Connection;
+﻿using EasyCommunication.Client;
 
 namespace EasyCommunication.Events.Client.EventArgs
 {
     public class DisconnectedFromHostEventArgs : IClientEventArgs
     {
         public Connection? Connection { get; internal set; }
-        public bool Reconnect { get; set; }
     }
 }

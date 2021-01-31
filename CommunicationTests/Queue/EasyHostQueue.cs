@@ -1,5 +1,5 @@
-﻿using EasyCommunication.Client.Connection;
-using EasyCommunication.Host.Connection;
+﻿using EasyCommunication.Client;
+using EasyCommunication.Host;
 using EasyCommunication.SharedTypes;
 using System;
 using System.Collections.Generic;
@@ -21,7 +21,7 @@ namespace CommunicationTests.Queue
             host.Open();
 
             //Buffer
-            await Task.Delay(10);
+            await Task.Delay(5);
             QueueStatus status = host.QueueData(new Random(), null, DataType.ProtoBuf);
 
             Assert.True(status == QueueStatus.IllegalFormat);
@@ -34,7 +34,7 @@ namespace CommunicationTests.Queue
             host.Open();
 
             //Buffer
-            await Task.Delay(10);
+            await Task.Delay(5);
             QueueStatus status = host.QueueData("", null, DataType.String);
 
             Assert.True(status == QueueStatus.Queued);
@@ -50,7 +50,7 @@ namespace CommunicationTests.Queue
             host.Open();
 
             //Buffer
-            await Task.Delay(10);
+            await Task.Delay(5);
             //Exceed Buffer
             QueueStatus status = host.QueueData(Encoding.UTF8.GetString(new byte[] { 1, 1, 1, 1 }), null, DataType.String);
 
@@ -63,7 +63,7 @@ namespace CommunicationTests.Queue
             var host = new EasyHost(2000, 9203, IPAddress.Loopback);
             
             //Buffer
-            await Task.Delay(10);
+            await Task.Delay(5);
             //Exceed Buffer
             QueueStatus status = host.QueueData("", null, DataType.String);
 

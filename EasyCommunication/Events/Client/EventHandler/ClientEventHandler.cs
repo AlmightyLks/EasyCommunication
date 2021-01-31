@@ -4,27 +4,27 @@ using static EasyCommunication.Events.Client.Events;
 namespace EasyCommunication.Events.Client.EventHandler
 {
     /// <summary>
-    /// EventHandler for <see cref="EasyCommunication.Client.Connection.EasyClient"/>-Events
+    /// EventHandler for <see cref="EasyCommunication.Client.EasyClient"/>-Events
     /// </summary>
     public class ClientEventHandler
     {
         /// <summary>
-        /// Event fired when an <see cref="EasyCommunication.Client.Connection.EasyClient"/> connected to an <see cref="EasyCommunication.Host.Connection.EasyHost"/>
+        /// Event fired when an <see cref="EasyCommunication.Client.EasyClient"/> connected to an <see cref="EasyCommunication.Host.EasyHost"/>
         /// </summary>
         public event CommunicationEvent<ConnectedToHostEventArgs> ConnectedToHost;
 
         /// <summary>
-        /// Event fired when an <see cref="EasyCommunication.Client.Connection.EasyClient"/> loses connection from an <see cref="EasyCommunication.Host.Connection.EasyHost"/>
+        /// Event fired when an <see cref="EasyCommunication.Client.EasyClient"/> loses connection from an <see cref="EasyCommunication.Host.EasyHost"/>
         /// </summary>
         public event CommunicationEvent<DisconnectedFromHostEventArgs> DisconnectedFromHost;
 
         /// <summary>
-        /// Event fired when data is received from an <see cref="EasyCommunication.Host.Connection.EasyHost"/>
+        /// Event fired when data is received from an <see cref="EasyCommunication.Host.EasyHost"/>
         /// </summary>
         public event CommunicationEvent<ReceivedDataEventArgs> ReceivedData;
 
         /// <summary>
-        /// Event fired when an <see cref="EasyCommunication.Client.Connection.EasyClient"/> is sending data to an <see cref="EasyCommunication.Host.Connection.EasyHost"/>
+        /// Event fired when an <see cref="EasyCommunication.Client.EasyClient"/> is sending data to an <see cref="EasyCommunication.Host.EasyHost"/>
         /// </summary>
         public event CommunicationEvent<SendingDataEventArgs> SendingData;
 

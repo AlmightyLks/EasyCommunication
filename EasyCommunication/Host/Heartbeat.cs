@@ -1,4 +1,4 @@
-﻿using EasyCommunication.Client.Connection;
+﻿using EasyCommunication.Client;
 using EasyCommunication.Logging;
 using EasyCommunication.SharedTypes;
 using System;
@@ -8,7 +8,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
-namespace EasyCommunication.Host.Connection
+namespace EasyCommunication.Host
 {
     /// <summary>
     /// Heartbeat class, responsible for heartbeating connected <see cref="EasyClient"/>s

@@ -1,20 +1,24 @@
 ﻿using EasyCommunication.Events.Client.EventArgs;
 using EasyCommunication.Events.Client.EventHandler;
 using EasyCommunication.Helper;
-using EasyCommunication.Host.Connection;
+using EasyCommunication.Host;
 using EasyCommunication.Logging;
+using EasyCommunication.Serialization;
 using EasyCommunication.SharedTypes;
+using Newtonsoft.Json;
+using ProtoBuf;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EasyCommunication.Client.Connection
+namespace EasyCommunication.Client
 {
     /// <summary>
     /// Establish a connection and communicate with an <see cref="EasyHost"/>
@@ -22,7 +26,7 @@ namespace EasyCommunication.Client.Connection
     /// <remarks>
     /// <para>Send and receive data from a connected <see cref="EasyHost"/></para>
     /// </remarks>
-    public sealed class EasyClient : IEasyClient
+    public class EasyClient
     {
         /// <summary>
         /// 
@@ -137,7 +141,7 @@ namespace EasyCommunication.Client.Connection
         }
 
         /// <summary>
-        /// Disconnect from <see cref="EasyCommunication.Host.Connection.EasyHost"/>
+        /// Disconnect from <see cref="EasyCommunication.Host.EasyHost"/>
         /// </summary>
         public void DisconnectFromHost()
         {
@@ -158,12 +162,10 @@ namespace EasyCommunication.Client.Connection
 
             var evArgs = new DisconnectedFromHostEventArgs()
             {
-                Connection = Connection,
-                Reconnect = false
+                Connection = Connection
             };
             EventHandler.InvokeDisconnectedFromHost(evArgs);
-            if (evArgs.Reconnect)
-                ConnectToHost(Connection.Value.IPAddress, Connection.Value.Port);
+            Connection = null;
         }
 
         /// <summary>
@@ -236,7 +238,7 @@ namespace EasyCommunication.Client.Connection
         }
 
         /// <summary>
-        /// Listens for incoming requests sent by <see cref="EasyCommunication.Host.Connection.EasyHost"/>
+        /// Listens for incoming requests sent by <see cref="EasyCommunication.Host.EasyHost"/>
         /// </summary>
         /// <returns><see cref="RequestListening"/></returns>
         internal void ListenForRequests()
@@ -298,9 +300,13 @@ namespace EasyCommunication.Client.Connection
                     if (Client != null && !Client.Connected)
                         CloseConnection();
                 }
+                catch (SerializationException e)
+                {
+                    Debug.WriteLine($"EasyClient: \"{e.Message}\" {Connection.GetIPAndPort()}.");
+                }
                 catch (Exception e)
                 {
-                    Debug.WriteLine($"EasyClient: Exception in listen:\n{Connection.GetIPAndPort()}\n{e}");
+                    Debug.WriteLine($"EasyClient: eee - Exception in listen:\n{Connection.GetIPAndPort()}\n{e}");
                 }
             }
         }
@@ -321,7 +327,7 @@ namespace EasyCommunication.Client.Connection
             {
                 try
                 {
-                    await Task.Delay(75);
+                    await Task.Delay(0);
                     if (dataQueue.Count == 0)
                         continue;
                     byte[] data = dataQueue.Dequeue();

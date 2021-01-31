@@ -2,6 +2,7 @@
 using EasyCommunication.Events.Host.EventHandler;
 using EasyCommunication.Helper;
 using EasyCommunication.Logging;
+using EasyCommunication.Serialization;
 using EasyCommunication.SharedTypes;
 using System;
 using System.Collections.Concurrent;
@@ -14,7 +15,7 @@ using System.Net.Sockets;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
-namespace EasyCommunication.Host.Connection
+namespace EasyCommunication.Host
 {
     /// <summary>
     /// Listens for incoming <see cref="Client.Connection.EasyClient"/> connections
@@ -22,7 +23,7 @@ namespace EasyCommunication.Host.Connection
     /// <remarks>
     /// <para>Send and receive data from connected clients</para>
     /// </remarks>
-    public sealed class EasyHost : IEasyHost
+    public sealed class EasyHost
     {
         /// <summary>
         /// 
@@ -386,7 +387,7 @@ namespace EasyCommunication.Host.Connection
         {
             while (!isClosed)
             {
-                await Task.Delay(75);
+                await Task.Delay(0);
                 if (dataQueue.Count == 0)
                     continue;
                 QueueEntity entitiy = dataQueue.Dequeue();

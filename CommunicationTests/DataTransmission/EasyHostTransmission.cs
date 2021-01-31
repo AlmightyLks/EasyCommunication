@@ -1,10 +1,12 @@
-﻿using EasyCommunication.Client.Connection;
+﻿using EasyCommunication.Client;
 using EasyCommunication.Events.Client.EventArgs;
-using EasyCommunication.Host.Connection;
+using EasyCommunication.Host;
+using EasyCommunication.Serialization;
 using EasyCommunication.SharedTypes;
 using Newtonsoft.Json;
 using ProtoBuf;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -22,7 +24,7 @@ namespace CommunicationTests.DataTransmission
         [Fact]
         public async Task TransmitShort()
         {
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 1; i++)
             {
                 short result = 0;
                 short expected = 1;
@@ -31,7 +33,7 @@ namespace CommunicationTests.DataTransmission
                 host.Open();
                 var client = new EasyClient();
                 client.ConnectToHost(IPAddress.Loopback, 9450);
-                await Task.Delay(10);
+                await Task.Delay(5);
 
                 client.EventHandler.ReceivedData += delegate (ReceivedDataEventArgs ev)
                 {
@@ -51,7 +53,7 @@ namespace CommunicationTests.DataTransmission
         [Fact]
         public async Task TransmitInteger()
         {
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 1; i++)
             {
                 int result = 0;
                 int expected = 1;
@@ -60,7 +62,7 @@ namespace CommunicationTests.DataTransmission
                 host.Open();
                 var client = new EasyClient();
                 client.ConnectToHost(IPAddress.Loopback, 9451);
-                await Task.Delay(10);
+                await Task.Delay(5);
 
                 client.EventHandler.ReceivedData += delegate (ReceivedDataEventArgs ev)
                 {
@@ -80,7 +82,7 @@ namespace CommunicationTests.DataTransmission
         [Fact]
         public async Task TransmitLong()
         {
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 1; i++)
             {
                 long result = 0;
                 long expected = 1;
@@ -89,7 +91,7 @@ namespace CommunicationTests.DataTransmission
                 host.Open();
                 var client = new EasyClient();
                 client.ConnectToHost(IPAddress.Loopback, 9452);
-                await Task.Delay(10);
+                await Task.Delay(5);
 
                 client.EventHandler.ReceivedData += delegate (ReceivedDataEventArgs ev)
                 {
@@ -109,7 +111,7 @@ namespace CommunicationTests.DataTransmission
         [Fact]
         public async Task TransmitFloat()
         {
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 1; i++)
             {
                 float result = 0;
                 float expected = 1.1f;
@@ -118,7 +120,7 @@ namespace CommunicationTests.DataTransmission
                 host.Open();
                 var client = new EasyClient();
                 client.ConnectToHost(IPAddress.Loopback, 9453);
-                await Task.Delay(10);
+                await Task.Delay(5);
 
                 client.EventHandler.ReceivedData += delegate (ReceivedDataEventArgs ev)
                 {
@@ -138,7 +140,7 @@ namespace CommunicationTests.DataTransmission
         [Fact]
         public async Task TransmitDouble()
         {
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 1; i++)
             {
                 double result = 0;
                 double expected = 1.1d;
@@ -147,7 +149,7 @@ namespace CommunicationTests.DataTransmission
                 host.Open();
                 var client = new EasyClient();
                 client.ConnectToHost(IPAddress.Loopback, 9454);
-                await Task.Delay(10);
+                await Task.Delay(5);
 
                 client.EventHandler.ReceivedData += delegate (ReceivedDataEventArgs ev)
                 {
@@ -167,7 +169,7 @@ namespace CommunicationTests.DataTransmission
         [Fact]
         public async Task TransmitBool()
         {
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 1; i++)
             {
                 bool result = false;
                 bool expected = true;
@@ -176,7 +178,7 @@ namespace CommunicationTests.DataTransmission
                 host.Open();
                 var client = new EasyClient();
                 client.ConnectToHost(IPAddress.Loopback, 9455);
-                await Task.Delay(10);
+                await Task.Delay(5);
 
                 client.EventHandler.ReceivedData += delegate (ReceivedDataEventArgs ev)
                 {
@@ -196,7 +198,7 @@ namespace CommunicationTests.DataTransmission
         [Fact]
         public async Task TransmitString()
         {
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 1; i++)
             {
                 string result = "Before";
                 string expected = "After";
@@ -205,7 +207,7 @@ namespace CommunicationTests.DataTransmission
                 host.Open();
                 var client = new EasyClient();
                 client.ConnectToHost(IPAddress.Loopback, 9456);
-                await Task.Delay(10);
+                await Task.Delay(5);
 
                 client.EventHandler.ReceivedData += delegate (ReceivedDataEventArgs ev)
                 {
@@ -225,7 +227,7 @@ namespace CommunicationTests.DataTransmission
         [Fact]
         public async Task TransmitJsonString()
         {
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 1; i++)
             {
                 Point result = new Point(0, 0);
                 Point expected = new Point(1, 1);
@@ -234,7 +236,7 @@ namespace CommunicationTests.DataTransmission
                 host.Open();
                 var client = new EasyClient();
                 client.ConnectToHost(IPAddress.Loopback, 9457);
-                await Task.Delay(10);
+                await Task.Delay(5);
 
                 client.EventHandler.ReceivedData += delegate (ReceivedDataEventArgs ev)
                 {
@@ -254,7 +256,7 @@ namespace CommunicationTests.DataTransmission
         [Fact]
         public async Task TransmitProtoBuf()
         {
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 1; i++)
             {
                 ProtoBufType result = new ProtoBufType(0, 0);
                 ProtoBufType expected = new ProtoBufType(1, 1);
@@ -263,7 +265,7 @@ namespace CommunicationTests.DataTransmission
                 host.Open();
                 var client = new EasyClient();
                 client.ConnectToHost(IPAddress.Loopback, 9458);
-                await Task.Delay(10);
+                await Task.Delay(5);
 
                 client.EventHandler.ReceivedData += delegate (ReceivedDataEventArgs ev)
                 {
