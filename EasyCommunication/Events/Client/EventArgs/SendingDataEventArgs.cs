@@ -1,4 +1,4 @@
-﻿using EasyCommunication.Client;
+﻿using EasyCommunication.Connection;
 using EasyCommunication.SharedTypes;
 using System;
 using System.Net;
@@ -8,7 +8,7 @@ namespace EasyCommunication.Events.Client.EventArgs
 {
     public class SendingDataEventArgs : IClientEventArgs
     {
-        public Connection? Receiver { get; internal set; }
+        public Connection.Connection? Receiver { get; internal set; }
         public DataType Type { get; internal set; }
         public object Data { get; internal set; }
         public bool Allow { get; set; }

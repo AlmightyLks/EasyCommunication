@@ -6,14 +6,14 @@ namespace EasyCommunication.Helper
 {
     public static class ProtoBufExtension
     {
-        public static bool TryDeserialize<T>(this byte[] data, out T result)
+        public static bool TryDeserializeProtoBuf<T>(this byte[] data, out T result)
         {
             Type type = typeof(T);
-            bool success = data.TryDeserialize(out object obj, type);
+            bool success = data.TryDeserializeProtoBuf(out object obj, type);
             result = (T)obj;
             return success;
         }
-        public static bool TryDeserialize(this byte[] data, out object result, Type type)
+        public static bool TryDeserializeProtoBuf(this byte[] data, out object result, Type type)
         {
             result = null;
 

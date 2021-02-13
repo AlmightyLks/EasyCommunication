@@ -1,5 +1,4 @@
-﻿using EasyCommunication.Client;
-using EasyCommunication.Host;
+﻿using EasyCommunication.Connection;
 using EasyCommunication.SharedTypes;
 using System;
 using System.Net;
@@ -21,7 +20,7 @@ namespace CommunicationTests.Queue
 
             //Buffer
             await Task.Delay(5);
-            var client = new EasyClient();
+            var client = new EasyClient(500);
             client.ConnectToHost(IPAddress.Loopback, 9150);
 
             //Buffer
@@ -42,7 +41,7 @@ namespace CommunicationTests.Queue
 
             //Buffer
             await Task.Delay(5);
-            var client = new EasyClient();
+            var client = new EasyClient(500);
             client.ConnectToHost(IPAddress.Loopback, 9151);
 
             //Buffer
@@ -59,7 +58,7 @@ namespace CommunicationTests.Queue
             var host = new EasyHost(2000, 9152, IPAddress.Loopback);
             host.Open();
 
-            var client = new EasyClient() { BufferSize = 3 };
+            var client = new EasyClient(500) { BufferSize = 3 };
             client.ConnectToHost(IPAddress.Loopback, 9152);
 
             //Buffer
@@ -76,7 +75,7 @@ namespace CommunicationTests.Queue
         {
             //Buffer
             await Task.Delay(5);
-            var client = new EasyClient();
+            var client = new EasyClient(500);
 
             //Buffer
             await Task.Delay(5);

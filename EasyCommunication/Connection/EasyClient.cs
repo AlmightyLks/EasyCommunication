@@ -1,8 +1,6 @@
 ﻿using EasyCommunication.Events.Client.EventArgs;
 using EasyCommunication.Events.Client.EventHandler;
 using EasyCommunication.Helper;
-using EasyCommunication.Host;
-using EasyCommunication.Logging;
 using EasyCommunication.Serialization;
 using EasyCommunication.SharedTypes;
 using Newtonsoft.Json;
@@ -18,7 +16,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EasyCommunication.Client
+namespace EasyCommunication.Connection
 {
     /// <summary>
     /// Establish a connection and communicate with an <see cref="EasyHost"/>
@@ -52,14 +50,24 @@ namespace EasyCommunication.Client
         public Connection? Connection { get; set; }
 
         /// <summary>
+        /// Clients and their amount of heartbeats since last query
+        /// </summary>
+        internal int Heartbeats { get; private set; }
+
+        /// <summary>
         /// TcpClient for establishing a connection
         /// </summary>
         internal TcpClient Client { get; set; }
 
         /// <summary>
-        /// <see cref="ILogger"/> instance, responsible for logging
+        /// 
         /// </summary>
-        private ILogger logger;
+        public int HeartbeatInterval { get; private set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private DateTime lastHeartbeat;
 
         /// <summary>
         /// 
@@ -80,9 +88,8 @@ namespace EasyCommunication.Client
         /// Creates an instance of <see cref="EasyClient"/>
         /// </summary>
         /// <param name="logger"><see cref="ILogger"/> DI instance</param>
-        public EasyClient(Encoding encoding = null)
+        public EasyClient(int heartbeatInterval, Encoding encoding = null)
         {
-            logger = new Logger();
             BufferSize = 1024;
             Connection = null;
             Client = new TcpClient();
@@ -90,6 +97,7 @@ namespace EasyCommunication.Client
             dataQueue = new Queue<byte[]>();
             isDisconnected = true;
             stringEncoding = encoding ?? Encoding.UTF8;
+            HeartbeatInterval = heartbeatInterval;
         }
 
         /// <summary>
@@ -100,10 +108,6 @@ namespace EasyCommunication.Client
         /// <returns>Whether the connection has been established or not</returns>
         public void ConnectToHost(IPAddress address, int port)
         {
-            //If the client, for whatever reason, disconnected - Reconnect.
-            if (ClientConnected)
-                return;
-
             //Reset client
             Client = new TcpClient();
 
@@ -123,9 +127,11 @@ namespace EasyCommunication.Client
                 if (!evArgs.Abort)
                 {
                     Debug.WriteLine($"EasyClient: Connection attempt successfull");
-                    StartListening();
+                    new Task(() => ListenForRequests()).Start();
                     isDisconnected = false;
+                    Heartbeats = 1;
                     new Task(async () => await SendQueuedData()).Start();
+                    new Task(async () => await CheckHeartbeats()).Start();
                 }
                 else
                 {
@@ -133,7 +139,7 @@ namespace EasyCommunication.Client
                     Connection = null;
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Connection = null;
                 Debug.WriteLine($"EasyClient: Connection attempt failed");
@@ -145,27 +151,22 @@ namespace EasyCommunication.Client
         /// </summary>
         public void DisconnectFromHost()
         {
-            if (!ClientConnected)
-                return;
-
-            SendData(new byte[] { (byte)DataType.Disconnect });
-            CloseConnection();
+            SendData(new byte[] { (byte)DataType.Disconnect, 0, 0, 0, 0 });
+            isDisconnected = true;
+            Client.Close();
+            Connection = null;
         }
 
         /// <summary>
         /// 
         /// </summary>
-        private void CloseConnection()
+        private void DisconnectFromHostEvent()
         {
-            isDisconnected = true;
-            Client.Close();
-
             var evArgs = new DisconnectedFromHostEventArgs()
             {
                 Connection = Connection
             };
             EventHandler.InvokeDisconnectedFromHost(evArgs);
-            Connection = null;
         }
 
         /// <summary>
@@ -208,7 +209,8 @@ namespace EasyCommunication.Client
                 return;
             try
             {
-                if (data[0] != (byte)DataType.Heartbeat && data[0] != (byte)DataType.Disconnect)
+                //If not heartbeat or disconnect
+                if (data.Length > 1)
                 {
                     var sendingArgs = new SendingDataEventArgs()
                     {
@@ -243,47 +245,54 @@ namespace EasyCommunication.Client
         /// <returns><see cref="RequestListening"/></returns>
         internal void ListenForRequests()
         {
-            byte[] buffer;
+            byte[] receivingBuffer;
             while (!isDisconnected)
             {
                 try
                 {
-                    if (!Client.Connected)
+                    if (!ClientConnected)
                         continue;
 
-                    buffer = new byte[BufferSize];
+                    receivingBuffer = new byte[BufferSize];
 
                     Debug.WriteLine($"EasyClient: Waiting for Requests...");
 
-                    //Wait for and deserialize the incoming data
+                    int bytesRead = Client.GetStream().Read(receivingBuffer, 0, receivingBuffer.Length);
 
-                    int bytesRead = Client.GetStream().Read(buffer, 0, buffer.Length);
-                    byte[] trimmedBuffer = new byte[bytesRead];
-                    Array.Copy(buffer, trimmedBuffer, bytesRead);
+                    byte[] dataBuffer = new byte[bytesRead];
+                    Array.Copy(receivingBuffer, dataBuffer, bytesRead);
 
-                    if (trimmedBuffer.Length == 1 && trimmedBuffer[0] == (byte)DataType.Heartbeat)
+                    //Do not accept empty buffers
+                    if (bytesRead == 0)
+                        continue;
+
+                    if (bytesRead == 5)
                     {
-                        SendData(new byte[] { (byte)DataType.Heartbeat });
-                    }
-                    else if (trimmedBuffer.Length == 1 && trimmedBuffer[0] == (byte)DataType.Disconnect)
-                    {
-                        CloseConnection();
-                        break;
+                        switch ((DataType)dataBuffer[0])
+                        {
+                            case DataType.HostHeartbeat:
+                                {
+                                    Debug.WriteLine("EasyClient: HostHeartbeat received");
+                                    SendData(new byte[] { (byte)DataType.HostHeartbeat, 0, 0, 0, 0 });
+                                }
+                                break;
+                            case DataType.ClientHeartbeat:
+                                {
+                                    Debug.WriteLine("EasyClient: ClientHeartbeat received");
+                                    Heartbeats++;
+                                }
+                                break;
+                            case DataType.Disconnect:
+                                {
+                                    DisconnectFromHostEvent();
+                                    DisconnectFromHost();
+                                }
+                                break;
+                        }
                     }
                     else
                     {
-                        byte[] trimmedData = new byte[trimmedBuffer.Length - 1];
-                        Array.Copy(trimmedBuffer, 1, trimmedData, 0, trimmedData.Length);
-
-                        //Received Data Event
-                        var receivedArgs = new ReceivedDataEventArgs()
-                        {
-                            Sender = Connection,
-                            Type = (DataType)trimmedBuffer[0],
-                            Data = trimmedData
-                        };
-
-                        EventHandler.InvokeReceivedData(receivedArgs);
+                        new Task(() => HandleData(dataBuffer, bytesRead)).Start();
                     }
                 }
                 catch (IOException e)
@@ -291,14 +300,40 @@ namespace EasyCommunication.Client
                     Debug.WriteLine($"EasyClient: EasyClient: Socket connection for {Connection.GetIPAndPort()} was closed.\n{e}");
 
                     if (Client != null && !Client.Connected)
+                    {
                         DisconnectFromHost();
+                    }
+                    DisconnectFromHostEvent();
                 }
                 catch (SocketException e)
                 {
-                    Debug.WriteLine($"EasyClient: EasyClient: Socket connection for {Connection.GetIPAndPort()} was closed.\n{e}");
+                    Debug.WriteLine($"EasyClient: Socket connection for {Connection.GetIPAndPort()} was closed.\n{e}");
 
                     if (Client != null && !Client.Connected)
-                        CloseConnection();
+                    {
+                        DisconnectFromHost();
+                    }
+                    DisconnectFromHostEvent();
+                }
+                catch (ObjectDisposedException e)
+                {
+                    Debug.WriteLine($"EasyClient: Socket connection for {Connection.GetIPAndPort()} was disposed.\n{e}");
+
+                    if (Client != null && !Client.Connected)
+                    {
+                        DisconnectFromHost();
+                    }
+                    DisconnectFromHostEvent();
+                }
+                catch (InvalidOperationException e)
+                {
+                    Debug.WriteLine($"EasyClient: Socket connection for {Connection.GetIPAndPort()} was disposed.\n{e}");
+
+                    if (Client != null && !Client.Connected)
+                    {
+                        DisconnectFromHost();
+                    }
+                    DisconnectFromHostEvent();
                 }
                 catch (SerializationException e)
                 {
@@ -307,15 +342,47 @@ namespace EasyCommunication.Client
                 catch (Exception e)
                 {
                     Debug.WriteLine($"EasyClient: eee - Exception in listen:\n{Connection.GetIPAndPort()}\n{e}");
+
+                    //Just to make sure, if something unexpected happens, close connection
+                    if (Client != null && !Client.Connected)
+                    {
+                        DisconnectFromHost();
+                    }
+                    DisconnectFromHostEvent();
                 }
             }
         }
 
-        /// <summary>
-        /// Asynchronously starts and assigns <see cref="RequestListening"/>
-        /// </summary>
-        private void StartListening()
-            => new Task(() => ListenForRequests()).Start();
+        private void HandleData(byte[] buffer, int bytesRead)
+        {
+            //If less than or equal to 5 bytes long (Min. size), invalid.
+            if (bytesRead <= 5)
+                return;
+
+            //Remove "meta-"data
+            bytesRead -= 5;
+
+            //Convert promised size
+            uint dataLength = BitConverter.ToUInt32(buffer, 1);
+
+            //If promised size does not equal the received data length
+            if (bytesRead != dataLength)
+                return;
+
+            DataType dataType = (DataType)buffer[0];
+            byte[] trimmedBuffer = new byte[dataLength];
+            Array.Copy(buffer, 5, trimmedBuffer, 0, bytesRead);
+
+            //Received Data Event
+            var receivedArgs = new ReceivedDataEventArgs()
+            {
+                Sender = Connection,
+                Type = dataType,
+                Data = trimmedBuffer
+            };
+
+            EventHandler.InvokeReceivedData(receivedArgs);
+        }
 
         /// <summary>
         /// 
@@ -327,7 +394,7 @@ namespace EasyCommunication.Client
             {
                 try
                 {
-                    await Task.Delay(0);
+                    await Task.Delay(1);
                     if (dataQueue.Count == 0)
                         continue;
                     byte[] data = dataQueue.Dequeue();
@@ -336,6 +403,42 @@ namespace EasyCommunication.Client
                 catch (Exception e)
                 {
                     Debug.WriteLine($"EasyClient in SendQueuedData:\n{e}");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Check all for dead connections and resend heartbeats
+        /// </summary>
+        private async Task CheckHeartbeats()
+        {
+            while (!isDisconnected)
+            {
+                await Task.Delay(HeartbeatInterval);
+
+                try
+                {
+                    if (Heartbeats == 0) //If no hearbeats have been returned
+                    {
+                        Debug.WriteLine($"EasyClient: No hearbeats received. Connection closed.");
+                        DisconnectFromHost();
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine($"EasyClient: Heartbeats exception thrown in CheckHeartbeats:\n{e}");
+                }
+
+                Heartbeats = 0;
+
+                try
+                {
+                    //Send out Heartbeats to every client
+                    SendData(new byte[] { (byte)DataType.ClientHeartbeat, 0, 0, 0, 0 });
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine($"EasyClient: Error sending Heartbeat:\n{e}");
                 }
             }
         }

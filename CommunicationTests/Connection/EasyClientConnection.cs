@@ -1,5 +1,4 @@
-﻿using EasyCommunication.Client;
-using EasyCommunication.Host;
+﻿using EasyCommunication.Connection;
 using Moq;
 using System.Net;
 using System.Threading.Tasks;
@@ -16,7 +15,7 @@ namespace CommunicationTests.Connection
         {
             for (int i = 0; i < 1; i++)
             {
-                var easyClient = new EasyClient();
+                var easyClient = new EasyClient(500);
                 Assert.False(easyClient.ClientConnected);
             }
         }
@@ -31,7 +30,7 @@ namespace CommunicationTests.Connection
                 //Buffer
                 await Task.Delay(5);
 
-                var client = new EasyClient();
+                var client = new EasyClient(500);
                 client.ConnectToHost(IPAddress.Loopback, 9000);
 
                 //Buffer
@@ -53,7 +52,7 @@ namespace CommunicationTests.Connection
                 //Buffer
                 await Task.Delay(5);
 
-                var client = new EasyClient();
+                var client = new EasyClient(500);
                 client.ConnectToHost(IPAddress.Loopback, 9001);
 
                 //Buffer
@@ -79,7 +78,7 @@ namespace CommunicationTests.Connection
                 //Buffer
                 await Task.Delay(5);
 
-                var client = new EasyClient();
+                var client = new EasyClient(500);
                 client.ConnectToHost(IPAddress.Loopback, 9002);
 
                 //Buffer
@@ -93,6 +92,28 @@ namespace CommunicationTests.Connection
 
                 //Buffer
                 await Task.Delay(50);
+                Assert.True(client.ClientConnected);
+                client.DisconnectFromHost();
+                host.Close();
+            }
+        }
+        [Fact]
+        public async Task HeartbeatSuccessfully()
+        {
+            for (int i = 0; i < 1; i++)
+            {
+                var host = new EasyHost(100, 9003, IPAddress.Loopback);
+                host.Open();
+
+                //Buffer
+                await Task.Delay(5);
+
+                var client = new EasyClient(100);
+                client.ConnectToHost(IPAddress.Loopback, 9003);
+
+                //Buffer
+                await Task.Delay(210);
+
                 Assert.True(client.ClientConnected);
                 client.DisconnectFromHost();
                 host.Close();

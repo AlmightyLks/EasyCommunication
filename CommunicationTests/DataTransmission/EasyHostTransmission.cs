@@ -1,6 +1,5 @@
-﻿using EasyCommunication.Client;
+﻿using EasyCommunication.Connection;
 using EasyCommunication.Events.Client.EventArgs;
-using EasyCommunication.Host;
 using EasyCommunication.Serialization;
 using EasyCommunication.SharedTypes;
 using Newtonsoft.Json;
@@ -31,7 +30,7 @@ namespace CommunicationTests.DataTransmission
 
                 var host = new EasyHost(1000, 9450, IPAddress.Loopback);
                 host.Open();
-                var client = new EasyClient();
+                var client = new EasyClient(500);
                 client.ConnectToHost(IPAddress.Loopback, 9450);
                 await Task.Delay(5);
 
@@ -42,7 +41,7 @@ namespace CommunicationTests.DataTransmission
                 };
                 var status = host.QueueData(expected, host.ClientConnections.Keys.ToArray()[0], DataType.Short);
 
-                await Task.Delay(150);
+                await Task.Delay(50);
 
                 Assert.Equal(expected, result);
 
@@ -60,7 +59,7 @@ namespace CommunicationTests.DataTransmission
 
                 var host = new EasyHost(1000, 9451, IPAddress.Loopback);
                 host.Open();
-                var client = new EasyClient();
+                var client = new EasyClient(500);
                 client.ConnectToHost(IPAddress.Loopback, 9451);
                 await Task.Delay(5);
 
@@ -71,7 +70,7 @@ namespace CommunicationTests.DataTransmission
                 };
                 var status = host.QueueData(expected, host.ClientConnections.Keys.ToArray()[0], DataType.Int);
 
-                await Task.Delay(150);
+                await Task.Delay(50);
 
                 Assert.Equal(expected, result);
 
@@ -89,7 +88,7 @@ namespace CommunicationTests.DataTransmission
 
                 var host = new EasyHost(1000, 9452, IPAddress.Loopback);
                 host.Open();
-                var client = new EasyClient();
+                var client = new EasyClient(500);
                 client.ConnectToHost(IPAddress.Loopback, 9452);
                 await Task.Delay(5);
 
@@ -100,7 +99,7 @@ namespace CommunicationTests.DataTransmission
                 };
                 var status = host.QueueData(expected, host.ClientConnections.Keys.ToArray()[0], DataType.Long);
 
-                await Task.Delay(150);
+                await Task.Delay(50);
 
                 Assert.Equal(expected, result);
 
@@ -118,7 +117,7 @@ namespace CommunicationTests.DataTransmission
 
                 var host = new EasyHost(1000, 9453, IPAddress.Loopback);
                 host.Open();
-                var client = new EasyClient();
+                var client = new EasyClient(500);
                 client.ConnectToHost(IPAddress.Loopback, 9453);
                 await Task.Delay(5);
 
@@ -129,7 +128,7 @@ namespace CommunicationTests.DataTransmission
                 };
                 var status = host.QueueData(expected, host.ClientConnections.Keys.ToArray()[0], DataType.Float);
 
-                await Task.Delay(150);
+                await Task.Delay(50);
 
                 Assert.Equal(expected, result);
 
@@ -147,7 +146,7 @@ namespace CommunicationTests.DataTransmission
 
                 var host = new EasyHost(1000, 9454, IPAddress.Loopback);
                 host.Open();
-                var client = new EasyClient();
+                var client = new EasyClient(500);
                 client.ConnectToHost(IPAddress.Loopback, 9454);
                 await Task.Delay(5);
 
@@ -158,7 +157,7 @@ namespace CommunicationTests.DataTransmission
                 };
                 var status = host.QueueData(expected, host.ClientConnections.Keys.ToArray()[0], DataType.Double);
 
-                await Task.Delay(150);
+                await Task.Delay(50);
 
                 Assert.Equal(expected, result);
 
@@ -176,7 +175,7 @@ namespace CommunicationTests.DataTransmission
 
                 var host = new EasyHost(1000, 9455, IPAddress.Loopback);
                 host.Open();
-                var client = new EasyClient();
+                var client = new EasyClient(500);
                 client.ConnectToHost(IPAddress.Loopback, 9455);
                 await Task.Delay(5);
 
@@ -187,7 +186,7 @@ namespace CommunicationTests.DataTransmission
                 };
                 var status = host.QueueData(expected, host.ClientConnections.Keys.ToArray()[0], DataType.Bool);
 
-                await Task.Delay(150);
+                await Task.Delay(50);
 
                 Assert.Equal(expected, result);
 
@@ -205,7 +204,7 @@ namespace CommunicationTests.DataTransmission
 
                 var host = new EasyHost(1000, 9456, IPAddress.Loopback);
                 host.Open();
-                var client = new EasyClient();
+                var client = new EasyClient(500);
                 client.ConnectToHost(IPAddress.Loopback, 9456);
                 await Task.Delay(5);
 
@@ -216,7 +215,7 @@ namespace CommunicationTests.DataTransmission
                 };
                 var status = host.QueueData(expected, host.ClientConnections.Keys.ToArray()[0], DataType.String);
 
-                await Task.Delay(150);
+                await Task.Delay(50);
 
                 Assert.Equal(expected, result);
 
@@ -234,7 +233,7 @@ namespace CommunicationTests.DataTransmission
 
                 var host = new EasyHost(1000, 9457, IPAddress.Loopback);
                 host.Open();
-                var client = new EasyClient();
+                var client = new EasyClient(500);
                 client.ConnectToHost(IPAddress.Loopback, 9457);
                 await Task.Delay(5);
 
@@ -245,7 +244,7 @@ namespace CommunicationTests.DataTransmission
                 };
                 var status = host.QueueData(expected, host.ClientConnections.Keys.ToArray()[0], DataType.JsonString);
 
-                await Task.Delay(150);
+                await Task.Delay(50);
 
                 Assert.Equal(expected, result);
 
@@ -263,7 +262,7 @@ namespace CommunicationTests.DataTransmission
 
                 var host = new EasyHost(1000, 9458, IPAddress.Loopback);
                 host.Open();
-                var client = new EasyClient();
+                var client = new EasyClient(500);
                 client.ConnectToHost(IPAddress.Loopback, 9458);
                 await Task.Delay(5);
 
@@ -278,7 +277,76 @@ namespace CommunicationTests.DataTransmission
                 };
                 var status = host.QueueData(expected, host.ClientConnections.Keys.ToArray()[0], DataType.ProtoBuf);
 
-                await Task.Delay(150);
+                await Task.Delay(50);
+
+                Assert.Equal(expected, result);
+
+                client.DisconnectFromHost();
+                host.Close();
+            }
+        }
+        [Fact]
+        public async Task TransmitByteArray()
+        {
+
+            for (int i = 0; i < 1; i++)
+            {
+                byte[] expected = Enumerable.Repeat<byte>(1, 10).ToArray();
+                byte[] result = new byte[0];
+
+                var host = new EasyHost(1000, 9459, IPAddress.Loopback);
+                host.Open();
+                var client = new EasyClient(500);
+                client.ConnectToHost(IPAddress.Loopback, 9459);
+                await Task.Delay(5);
+
+                client.EventHandler.ReceivedData += delegate (ReceivedDataEventArgs ev)
+                {
+                    if (ev.Type == DataType.ByteArray)
+                    {
+                        result = ev.Data;
+                    }
+                };
+                var status = host.QueueData(expected, host.ClientConnections.Keys.ToArray()[0], DataType.ByteArray);
+
+                await Task.Delay(50);
+
+                Assert.Equal(expected, result);
+
+                client.DisconnectFromHost();
+                host.Close();
+            }
+        }
+        [Fact]
+        public async Task Transmit1MB()
+        {
+            for (int i = 0; i < 1; i++)
+            {
+                byte[] expected = Enumerable.Repeat<byte>(1, 1_048_576).ToArray();
+                byte[] result = new byte[0];
+
+                var host = new EasyHost(1000, 9460, IPAddress.Loopback)
+                {
+                    BufferSize = 1_050_000
+                };
+                host.Open();
+                var client = new EasyClient(500)
+                {
+                    BufferSize = 1_050_000
+                };
+                client.ConnectToHost(IPAddress.Loopback, 9460);
+                await Task.Delay(5);
+
+                client.EventHandler.ReceivedData += delegate (ReceivedDataEventArgs ev)
+                {
+                    if (ev.Type == DataType.ByteArray)
+                    {
+                        result = ev.Data;
+                    }
+                };
+                var status = host.QueueData(expected, host.ClientConnections.Keys.ToArray()[0], DataType.ByteArray);
+
+                await Task.Delay(125);
 
                 Assert.Equal(expected, result);
 

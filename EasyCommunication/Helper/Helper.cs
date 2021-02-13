@@ -1,4 +1,4 @@
-﻿using EasyCommunication.Client;
+﻿using EasyCommunication.Connection;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -99,7 +99,7 @@ namespace EasyCommunication.Helper
         /// </remarks>
         /// <param name="connection"></param>
         /// <returns>Connection's IPAddress:Port string</returns>
-        public static string GetIPAndPort(this Connection? connection)
+        public static string GetIPAndPort(this Connection.Connection? connection)
         {
             try
             {

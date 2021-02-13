@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace EasyCommunication.SharedTypes
+﻿namespace EasyCommunication.SharedTypes
 {
     public enum DataType : byte
     {
-        Heartbeat = 1,
+        HostHeartbeat = 1,
+        ClientHeartbeat,
         Disconnect,
-        JsonString,
+        ByteArray,
         ProtoBuf,
+        JsonString,
         Bool,
         Byte,
         Short,

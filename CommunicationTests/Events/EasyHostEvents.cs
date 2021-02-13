@@ -1,6 +1,5 @@
-﻿using EasyCommunication.Client;
+﻿using EasyCommunication.Connection;
 using EasyCommunication.Events.Host.EventArgs;
-using EasyCommunication.Host;
 using EasyCommunication.SharedTypes;
 using System;
 using System.Collections.Generic;
@@ -24,7 +23,7 @@ namespace CommunicationTests.Events
                 int triggered = 0;
                 var host = new EasyHost(2000, 9250, IPAddress.Loopback);
                 host.Open();
-                var client = new EasyClient();
+                var client = new EasyClient(500);
 
                 host.EventHandler.ClientConnected += delegate (ClientConnectedEventArgs ev)
                 {
@@ -47,7 +46,7 @@ namespace CommunicationTests.Events
                 int triggered = 0;
                 var host = new EasyHost(2000, 9251, IPAddress.Loopback);
                 host.Open();
-                var client = new EasyClient();
+                var client = new EasyClient(500);
 
                 host.EventHandler.ClientDisconnected += delegate (ClientDisconnectedEventArgs ev)
                 {
@@ -70,7 +69,7 @@ namespace CommunicationTests.Events
                 int triggered = 0;
                 var host = new EasyHost(2000, 9252, IPAddress.Loopback);
                 host.Open();
-                var client = new EasyClient();
+                var client = new EasyClient(500);
 
                 host.EventHandler.ReceivedData += delegate (ReceivedDataEventArgs ev)
                 {
@@ -81,7 +80,7 @@ namespace CommunicationTests.Events
                 client.QueueData("Good evening", DataType.String);
 
                 //Buffer for connection & event
-                await Task.Delay(5);
+                await Task.Delay(25);
                 Assert.True(triggered == 1);
                 host.Close();
                 client.DisconnectFromHost();
@@ -95,7 +94,7 @@ namespace CommunicationTests.Events
                 int triggered = 0;
                 var host = new EasyHost(2000, 9253, IPAddress.Loopback);
                 host.Open();
-                var client = new EasyClient();
+                var client = new EasyClient(500);
 
                 host.EventHandler.SendingData += delegate (SendingDataEventArgs ev)
                 {
@@ -106,7 +105,7 @@ namespace CommunicationTests.Events
                 host.QueueData("Good evening", host.ClientConnections.Keys.ToArray()[0], DataType.String);
 
                 //Buffer for connection & event
-                await Task.Delay(5);
+                await Task.Delay(25);
                 Assert.True(triggered == 1);
                 host.Close();
                 client.DisconnectFromHost();
@@ -120,19 +119,19 @@ namespace CommunicationTests.Events
                 bool equals = false;
                 var host = new EasyHost(2000, 9254, IPAddress.Loopback);
                 host.Open();
-                var client = new EasyClient();
+                var client = new EasyClient(500);
                 string data = "Good evening";
 
-                host.EventHandler.SendingData += delegate (SendingDataEventArgs ev)
+                host.EventHandler.ReceivedData += delegate (ReceivedDataEventArgs ev)
                 {
                     equals = (data == Encoding.UTF8.GetString(ev.Data));
                 };
                 client.ConnectToHost(IPAddress.Loopback, 9254);
                 await Task.Delay(5);
-                host.QueueData(data, host.ClientConnections.Keys.ToArray()[0], DataType.String);
+                var status = client.QueueData(data, DataType.String);
 
                 //Buffer for connection & event
-                await Task.Delay(5);
+                await Task.Delay(25);
                 Assert.True(equals);
                 host.Close();
                 client.DisconnectFromHost();

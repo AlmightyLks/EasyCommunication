@@ -1,5 +1,4 @@
-﻿using EasyCommunication.Client;
-using EasyCommunication.Host;
+﻿using EasyCommunication.Connection;
 using EasyCommunication.SharedTypes;
 using System;
 using System.Collections.Generic;

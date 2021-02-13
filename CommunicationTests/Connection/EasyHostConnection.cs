@@ -1,5 +1,4 @@
-﻿using EasyCommunication.Client;
-using EasyCommunication.Host;
+﻿using EasyCommunication.Connection;
 using System;
 using System.Diagnostics;
 using System.Net;
@@ -54,7 +53,7 @@ namespace CommunicationTests.Connection
 
                 //Buffer
                 await Task.Delay(5);
-                var client = new EasyClient();
+                var client = new EasyClient(500);
                 client.ConnectToHost(IPAddress.Loopback, 9052);
 
                 //Buffer
@@ -74,8 +73,8 @@ namespace CommunicationTests.Connection
 
                 //Buffer
                 await Task.Delay(5);
-                var clientOne = new EasyClient();
-                var clientTwo = new EasyClient();
+                var clientOne = new EasyClient(500);
+                var clientTwo = new EasyClient(500);
                 clientOne.ConnectToHost(IPAddress.Loopback, 9053);
                 clientTwo.ConnectToHost(IPAddress.Loopback, 9053);
 
@@ -96,7 +95,7 @@ namespace CommunicationTests.Connection
                 var host = new EasyHost(500, 9054, IPAddress.Loopback);
                 host.Open();
 
-                var client = new EasyClient();
+                var client = new EasyClient(500);
                 client.ConnectToHost(IPAddress.Loopback, 9054);
 
                 //Buffer
@@ -158,8 +157,8 @@ namespace CommunicationTests.Connection
 
                 //Buffer
                 await Task.Delay(5);
-                var client1 = new EasyClient();
-                var client2 = new EasyClient();
+                var client1 = new EasyClient(500);
+                var client2 = new EasyClient(500);
                 client1.ConnectToHost(IPAddress.Loopback, 9057);
                 client2.ConnectToHost(IPAddress.Loopback, 9057);
 
