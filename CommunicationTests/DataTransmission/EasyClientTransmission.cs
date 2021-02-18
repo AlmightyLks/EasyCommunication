@@ -345,6 +345,41 @@ namespace CommunicationTests.DataTransmission
                 host.Close();
             }
         }
+        [Fact]
+        public async Task Transmit5Integers()
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                List<int> expected = new List<int>()
+                {
+                    1, 2, 3, 4, 5
+                };
+                List<int> result = new List<int>();
+
+                var host = new EasyHost(1000, 9411, IPAddress.Loopback);
+                host.Open();
+                var client = new EasyClient(500);
+                client.ConnectToHost(IPAddress.Loopback, 9411);
+                await Task.Delay(5);
+
+                host.EventHandler.ReceivedData += delegate (ReceivedDataEventArgs ev)
+                {
+                    if (ev.Type == DataType.Int)
+                    {
+                        result.Add(BitConverter.ToInt32(ev.Data));
+                    }
+                };
+                foreach (var item in expected)
+                    client.QueueData(item, DataType.Int);
+
+                await Task.Delay(2000);
+                result.Sort();
+                Assert.Equal(expected, result);
+
+                client.DisconnectFromHost();
+                host.Close();
+            }
+        }
 
         [ProtoContract]
         class ProtoBufType

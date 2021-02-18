@@ -84,6 +84,8 @@ namespace EasyCommunication.Connection
         /// </summary>
         private bool isDisconnected;
 
+        private readonly object _socketLock = new object();
+
         /// <summary>
         /// Creates an instance of <see cref="EasyClient"/>
         /// </summary>
@@ -127,6 +129,7 @@ namespace EasyCommunication.Connection
                 if (!evArgs.Abort)
                 {
                     Debug.WriteLine($"EasyClient: Connection attempt successfull");
+                    SendData(new byte[0]);
                     new Task(() => ListenForRequests()).Start();
                     isDisconnected = false;
                     Heartbeats = 1;
@@ -209,6 +212,8 @@ namespace EasyCommunication.Connection
                 return;
             try
             {
+                //lock (_socketLock)
+                //{
                 //If not heartbeat or disconnect
                 if (data.Length > 1)
                 {
@@ -227,11 +232,13 @@ namespace EasyCommunication.Connection
 
                     if (!sendingArgs.Allow)
                         return;
-                    if (Connection is null)
+                    if (Connection == null)
                         return;
                 }
-
+                if (data.Length > 5)
+                    Debug.WriteLine($"EasyClient: Sending {((DataType)data[0]).ToString()}");
                 Client.GetStream().Write(data, 0, data.Length);
+                //}
             }
             catch (Exception e)
             {
@@ -394,7 +401,7 @@ namespace EasyCommunication.Connection
             {
                 try
                 {
-                    await Task.Delay(1);
+                    await Task.Delay(0);
                     if (dataQueue.Count == 0)
                         continue;
                     byte[] data = dataQueue.Dequeue();

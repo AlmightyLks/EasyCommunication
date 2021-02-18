@@ -354,6 +354,73 @@ namespace CommunicationTests.DataTransmission
                 host.Close();
             }
         }
+        [Fact]
+        public async Task Transmit5Integers()
+        {
+            for (int i = 0; i < 1; i++)
+            {
+                List<int> expected = new List<int>()
+                {
+                    1, 2, 3, 4, 5
+                };
+                List<int> result = new List<int>();
+
+                var host = new EasyHost(1000, 9461, IPAddress.Loopback);
+                host.Open();
+                var client = new EasyClient(500);
+                client.ConnectToHost(IPAddress.Loopback, 9461);
+                await Task.Delay(5);
+
+                client.EventHandler.ReceivedData += delegate (ReceivedDataEventArgs ev)
+                {
+                    if (ev.Type == DataType.Int)
+                    {
+                        result.Add(BitConverter.ToInt32(ev.Data));
+                    }
+                };
+                foreach (var item in expected)
+                    host.QueueData(item, host.ClientConnections.Keys.ToArray()[0], DataType.Int);
+
+                await Task.Delay(75);
+
+                Assert.Equal(expected, result);
+
+                client.DisconnectFromHost();
+                host.Close();
+            }
+        }
+        [Fact]
+        public async Task Transmit50Integers()
+        {
+            for (int i = 0; i < 1; i++)
+            {
+                List<int> expected = Enumerable.Range(0, 50).ToList();
+                List<int> result = new List<int>();
+
+                var host = new EasyHost(1000, 9462, IPAddress.Loopback);
+                host.Open();
+                var client = new EasyClient(500);
+                client.ConnectToHost(IPAddress.Loopback, 9462);
+                await Task.Delay(5);
+
+                client.EventHandler.ReceivedData += delegate (ReceivedDataEventArgs ev)
+                {
+                    if (ev.Type == DataType.Int)
+                    {
+                        result.Add(BitConverter.ToInt32(ev.Data));
+                    }
+                };
+                foreach (var item in expected)
+                    host.QueueData(item, host.ClientConnections.Keys.ToArray()[0], DataType.Int);
+
+                await Task.Delay(1000);
+
+                Assert.Equal(expected, result);
+
+                client.DisconnectFromHost();
+                host.Close();
+            }
+        }
         [ProtoContract]
         class ProtoBufType
         {

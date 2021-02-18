@@ -182,7 +182,7 @@ namespace EasyCommunication.Connection
                 return;
             try
             {
-                if (!ClientConnections.Any(_ => _.Key == receiver))
+                if (!ClientConnections.Keys.Contains(receiver))
                     return;
                 if (!receiver.Connected)
                     return;
@@ -291,7 +291,10 @@ namespace EasyCommunication.Connection
                     int bytesRead = acceptedClient.GetStream().Read(receivingBuffer, 0, receivingBuffer.Length);
 
                     byte[] dataBuffer = new byte[bytesRead];
+
                     Array.Copy(receivingBuffer, dataBuffer, bytesRead);
+                    if (bytesRead > 5)
+                        Debug.WriteLine($"EasyHost: Received {((DataType)dataBuffer[0]).ToString()}");
 
                     //Do not accept empty buffers
                     if (bytesRead == 0)
@@ -421,7 +424,7 @@ namespace EasyCommunication.Connection
         {
             while (!isClosed)
             {
-                await Task.Delay(1);
+                await Task.Delay(0);
                 if (dataQueue.Count == 0)
                     continue;
                 QueueEntity entitiy = dataQueue.Dequeue();
