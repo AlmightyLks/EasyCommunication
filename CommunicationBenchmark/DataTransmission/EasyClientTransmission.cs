@@ -15,7 +15,6 @@ using System.Threading.Tasks;
 namespace CommunicationBenchmark.DataTransmission
 {
     [SimpleJob(
-        RunStrategy.Throughput,
         launchCount: 1,
         warmupCount: 2,
         targetCount: 3

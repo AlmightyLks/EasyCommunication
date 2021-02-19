@@ -9,6 +9,12 @@ namespace CommunicationBenchmark
     {
         static void Main(string[] args)
         {
+#if DEBUG
+            var smth = new EasyClientTransmission();
+            smth.GlobalSetup();
+            smth.Setup();
+            smth.TransmitShort();
+#endif
             BenchmarkRunner.Run<EasyClientTransmission>();
             BenchmarkRunner.Run<EasyClientConnection>();
             BenchmarkRunner.Run<DataSerialization>();

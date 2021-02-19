@@ -12,36 +12,35 @@ namespace EasyCommunication.Helper
     {
         public static IEnumerable<ReceivedBuffer> GetStackedBuffers(this byte[] buffer)
         {
-            byte[] copiedArray = buffer.ToArray();
             List<ReceivedBuffer> result = new List<ReceivedBuffer>();
             int offset = 0;
 
             //If less than to 5 bytes long (Min. size), invalid.
-            if (copiedArray.Length < 5)
+            if (buffer.Length < 5)
                 return result;
 
             do
             {
                 //Convert promised size
-                int dataLength = BitConverter.ToInt32(copiedArray, offset + 1);
+                int dataLength = BitConverter.ToInt32(buffer, offset + 1);
 
                 //If promised size + 5 id-bytes is greater than the received data length
-                if ((dataLength + 5) > copiedArray.Length)
+                if ((dataLength + 5) > buffer.Length)
                     break;
 
                 byte[] trimmedBuffer = new byte[dataLength];
-                copiedArray.AsSpan(offset + 5, dataLength).CopyTo(trimmedBuffer);
+                buffer.AsSpan(offset + 5, dataLength).CopyTo(trimmedBuffer);
 
                 result.Add(new ReceivedBuffer()
                 {
-                    DataType = (DataType)copiedArray[offset],
+                    DataType = (DataType)buffer[offset],
                     Data = trimmedBuffer
                 });
 
                 //Offset to size id for next
                 offset += (dataLength + 5);
 
-            } while (offset < copiedArray.Length);
+            } while (offset < buffer.Length);
 
             return result;
         }
