@@ -289,11 +289,15 @@ namespace EasyCommunication
                         return;
 
                     receivingBuffer = new byte[BufferSize];
-                    int bytesRead = acceptedClient.GetStream().Read(receivingBuffer, 0, receivingBuffer.Length);
+                    int bytesRead = 0;
+                    bytesRead = acceptedClient.GetStream().Read(receivingBuffer, 0, receivingBuffer.Length);
 
                     byte[] dataBuffer = new byte[bytesRead];
+                    Array.Resize(ref receivingBuffer, bytesRead);
+                    receivingBuffer.AsSpan().CopyTo(dataBuffer);
 
-                    Array.Copy(receivingBuffer, dataBuffer, bytesRead);
+                    //if (dataBuffer.Length > 5)
+                    //    Debug.WriteLine($"EasyHost: Received {(DataType)dataBuffer[0]} | {string.Join(" ", dataBuffer)}");
 
                     //Do not accept empty buffers
                     if (bytesRead == 0)
@@ -355,10 +359,17 @@ namespace EasyCommunication
         {
             IEnumerable<ReceivedBuffer> buffers = data.GetStackedBuffers();
 
+            if (data.Length > 5)
+                Debug.WriteLine($"EasyHost: Received before: {(DataType)data[0]} | {string.Join(" ", data)}");
+
+            foreach (var buffer in buffers)
+                if (buffer.Data.Length > 0)
+                    Debug.WriteLine($"EasyHost: Received after: {buffer.DataType} | {string.Join(" ", buffer.Data)}");
+
             foreach (ReceivedBuffer buffer in buffers)
             {
-                if (buffer.Data.Length != 0)
-                    Debug.WriteLine($"EasyHost: Received {buffer.DataType} | {string.Join(" ", buffer.Data)}");
+                //if (buffer.Data.Length != 0)
+                //    Debug.WriteLine($"EasyHost: Received {buffer.DataType} | {string.Join(" ", buffer.Data)}");
 
                 if (buffer.Data.Length == 0)
                 {

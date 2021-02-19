@@ -416,7 +416,7 @@ namespace CommunicationTests.DataTransmission
 
                 await Task.Delay(1000);
 
-                Assert.Equal(expected, result);
+                Assert.Equal(expected, result.OrderBy(_ => _).ToList());
 
                 client.DisconnectFromHost();
                 host.Close();

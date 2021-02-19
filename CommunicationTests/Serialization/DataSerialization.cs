@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Xunit;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace CommunicationTests.Serialization
 {
@@ -117,7 +118,7 @@ namespace CommunicationTests.Serialization
             byte[] expectedData = new byte[] {
                 (byte)DataType.Int, 4, 0, 0, 0, 2, 0, 0, 0,
                 (byte)DataType.HostHeartbeat, 0, 0, 0, 0,
-                (byte)DataType.Int, 4, 0, 0, 0, 0, 0, 0, 0,
+                (byte)DataType.Int, 4, 0, 0, 0, 2, 0, 0, 0,
             };
             ReceivedBuffer[] expected = new ReceivedBuffer[3];
 

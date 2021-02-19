@@ -350,7 +350,7 @@ namespace CommunicationTests.DataTransmission
         [Fact]
         public async Task Transmit5Integers()
         {
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 1; i++)
             {
                 List<int> expected = new List<int>()
                 {
@@ -381,6 +381,39 @@ namespace CommunicationTests.DataTransmission
                 client.DisconnectFromHost();
                 host.Close();
                 Debug.WriteLine("-------------------");
+            }
+        }
+
+        [Fact]
+        public async Task Transmit50Integers()
+        {
+            for (int i = 0; i < 1; i++)
+            {
+                List<int> expected = Enumerable.Range(0, 50).ToList();
+                List<int> result = new List<int>();
+
+                var host = new EasyHost(1000, 9412, IPAddress.Loopback);
+                host.Open();
+                var client = new EasyClient(500);
+                client.ConnectToHost(IPAddress.Loopback, 9412);
+                await Task.Delay(5);
+
+                host.EventHandler.ReceivedData += delegate (ReceivedDataEventArgs ev)
+                {
+                    if (ev.ReceivedBuffer.DataType == DataType.Int)
+                    {
+                        result.Add(BitConverter.ToInt32(ev.ReceivedBuffer.Data));
+                    }
+                };
+                foreach (var item in expected)
+                    client.QueueData(item, DataType.Int);
+
+                await Task.Delay(1000);
+
+                Assert.Equal(expected, result.OrderBy(_ => _).ToList());
+
+                client.DisconnectFromHost();
+                host.Close();
             }
         }
 
