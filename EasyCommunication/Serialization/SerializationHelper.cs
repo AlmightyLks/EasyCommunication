@@ -20,13 +20,13 @@ namespace EasyCommunication.Serialization
                 case DataType.ClientHeartbeat:
                     {
                         buffer = new byte[] { (byte)DataType.ClientHeartbeat };
-                        WriteLength(buffer, (uint)buffer.Length);
+                        WriteLength(buffer, buffer.Length);
                         break;
                     }
                 case DataType.HostHeartbeat:
                     {
                         buffer = new byte[] { (byte)DataType.HostHeartbeat };
-                        WriteLength(buffer, (uint)buffer.Length);
+                        WriteLength(buffer, buffer.Length);
                         break;
                     }
                 case DataType.JsonString:
@@ -34,7 +34,7 @@ namespace EasyCommunication.Serialization
                         var jsonString = JsonConvert.SerializeObject(data);
                         byte[] arr = encoding.GetBytes(jsonString);
                         buffer = new byte[arr.Length + 5];
-                        WriteLength(buffer, (uint)arr.Length);
+                        WriteLength(buffer, arr.Length);
                         buffer[0] = (byte)DataType.JsonString;
                         Array.Copy(arr, 0, buffer, 5, arr.Length);
                         break;
@@ -43,7 +43,7 @@ namespace EasyCommunication.Serialization
                     {
                         byte[] arr = (byte[])(object)data;
                         buffer = new byte[arr.Length + 5];
-                        WriteLength(buffer, (uint)arr.Length);
+                        WriteLength(buffer, arr.Length);
                         buffer[0] = (byte)DataType.ByteArray;
                         Array.Copy(arr, 0, buffer, 5, arr.Length);
                         break;
@@ -56,7 +56,7 @@ namespace EasyCommunication.Serialization
                             Serializer.Serialize(stream, data);
                             arr = stream.ToArray();
                             buffer = new byte[arr.Length + 5];
-                            WriteLength(buffer, (uint)arr.Length);
+                            WriteLength(buffer, arr.Length);
                             buffer[0] = (byte)DataType.ProtoBuf;
                             Array.Copy(arr, 0, buffer, 5, arr.Length);
                         }
@@ -70,7 +70,7 @@ namespace EasyCommunication.Serialization
                                 {
                                     byte[] arr = BitConverter.GetBytes((bool)(object)data);
                                     buffer = new byte[arr.Length + 5];
-                                    WriteLength(buffer, (uint)arr.Length);
+                                    WriteLength(buffer, arr.Length);
                                     buffer[0] = (byte)DataType.Bool;
                                     Array.Copy(arr, 0, buffer, 5, arr.Length);
                                     break;
@@ -79,7 +79,7 @@ namespace EasyCommunication.Serialization
                                 {
                                     byte[] arr = new byte[] { (byte)(object)data };
                                     buffer = new byte[arr.Length + 5];
-                                    WriteLength(buffer, (uint)arr.Length);
+                                    WriteLength(buffer, arr.Length);
                                     buffer[0] = (byte)DataType.Byte;
                                     Array.Copy(arr, 0, buffer, 5, arr.Length);
                                     break;
@@ -88,7 +88,7 @@ namespace EasyCommunication.Serialization
                                 {
                                     byte[] arr = BitConverter.GetBytes((short)(object)data);
                                     buffer = new byte[arr.Length + 5];
-                                    WriteLength(buffer, (uint)arr.Length);
+                                    WriteLength(buffer, arr.Length);
                                     buffer[0] = (byte)DataType.Short;
                                     Array.Copy(arr, 0, buffer, 5, arr.Length);
                                     break;
@@ -97,7 +97,7 @@ namespace EasyCommunication.Serialization
                                 {
                                     byte[] arr = BitConverter.GetBytes((int)(object)data);
                                     buffer = new byte[arr.Length + 5];
-                                    WriteLength(buffer, (uint)arr.Length);
+                                    WriteLength(buffer, arr.Length);
                                     buffer[0] = (byte)DataType.Int;
                                     Array.Copy(arr, 0, buffer, 5, arr.Length);
                                     break;
@@ -106,7 +106,7 @@ namespace EasyCommunication.Serialization
                                 {
                                     byte[] arr = BitConverter.GetBytes((long)(object)data);
                                     buffer = new byte[arr.Length + 5];
-                                    WriteLength(buffer, (uint)arr.Length);
+                                    WriteLength(buffer, arr.Length);
                                     buffer[0] = (byte)DataType.Long;
                                     Array.Copy(arr, 0, buffer, 5, arr.Length);
                                     break;
@@ -115,7 +115,7 @@ namespace EasyCommunication.Serialization
                                 {
                                     byte[] arr = BitConverter.GetBytes((float)(object)data);
                                     buffer = new byte[arr.Length + 5];
-                                    WriteLength(buffer, (uint)arr.Length);
+                                    WriteLength(buffer, arr.Length);
                                     buffer[0] = (byte)DataType.Float;
                                     Array.Copy(arr, 0, buffer, 5, arr.Length);
                                     break;
@@ -124,7 +124,7 @@ namespace EasyCommunication.Serialization
                                 {
                                     byte[] arr = BitConverter.GetBytes((double)(object)data);
                                     buffer = new byte[arr.Length + 5];
-                                    WriteLength(buffer, (uint)arr.Length);
+                                    WriteLength(buffer, arr.Length);
                                     buffer[0] = (byte)DataType.Double;
                                     Array.Copy(arr, 0, buffer, 5, arr.Length);
                                     break;
@@ -133,7 +133,7 @@ namespace EasyCommunication.Serialization
                                 {
                                     byte[] arr = encoding.GetBytes((string)(object)data);
                                     buffer = new byte[arr.Length + 5];
-                                    WriteLength(buffer, (uint)arr.Length);
+                                    WriteLength(buffer, arr.Length);
                                     buffer[0] = (byte)DataType.String;
                                     Array.Copy(arr, 0, buffer, 5, arr.Length);
                                     break;
@@ -146,7 +146,7 @@ namespace EasyCommunication.Serialization
             }
             return buffer;
         }
-        private static void WriteLength(byte[] buffer, uint length)
+        private static void WriteLength(byte[] buffer, int length)
         {
             var lengthBytes = BitConverter.GetBytes(length);
             buffer[1] = lengthBytes[0];

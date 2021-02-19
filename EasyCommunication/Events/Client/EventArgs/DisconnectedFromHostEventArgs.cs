@@ -1,9 +1,9 @@
-﻿using EasyCommunication.Connection;
+﻿using EasyCommunication.SharedTypes;
 
 namespace EasyCommunication.Events.Client.EventArgs
 {
     public class DisconnectedFromHostEventArgs : IClientEventArgs
     {
-        public Connection.Connection? Connection { get; internal set; }
+        public Connection? Connection { get; internal set; }
     }
 }

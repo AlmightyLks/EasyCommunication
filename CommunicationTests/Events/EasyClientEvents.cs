@@ -1,5 +1,5 @@
 ﻿using EasyCommunication.Events.Client.EventArgs;
-using EasyCommunication.Connection;
+using EasyCommunication.SharedTypes;
 using EasyCommunication.SharedTypes;
 using System.Linq;
 using System.Net;
@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 using System.Diagnostics;
+using EasyCommunication;
 
 namespace CommunicationTests.Events
 {
@@ -131,7 +132,7 @@ namespace CommunicationTests.Events
 
                 client.EventHandler.ReceivedData += delegate (ReceivedDataEventArgs ev)
                 {
-                    equal = (data == Encoding.UTF8.GetString(ev.Data));
+                    equal = (data == Encoding.UTF8.GetString(ev.ReceivedBuffer.Data));
                 };
 
                 client.ConnectToHost(IPAddress.Loopback, 9104);

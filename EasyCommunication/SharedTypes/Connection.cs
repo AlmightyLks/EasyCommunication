@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace EasyCommunication.Connection
+namespace EasyCommunication.SharedTypes
 {
     /// <summary>
     /// Information about the IPAddress and the Port from the <see cref="Connection"/>

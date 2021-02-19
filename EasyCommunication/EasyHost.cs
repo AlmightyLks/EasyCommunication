@@ -14,9 +14,10 @@ using System.Net;
 using System.Net.Sockets;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace EasyCommunication.Connection
+namespace EasyCommunication
 {
     /// <summary>
     /// Listens for incoming <see cref="Client.Connection.EasyClient"/> connections
@@ -64,7 +65,7 @@ namespace EasyCommunication.Connection
         /// <summary>
         /// 
         /// </summary>
-        private Queue<QueueEntity> dataQueue;
+        private ConcurrentQueue<QueueEntity> dataQueue;
 
         /// <summary>
         /// 
@@ -86,7 +87,7 @@ namespace EasyCommunication.Connection
         public EasyHost(int heartbeatInterval, ushort listeningPort, IPAddress listeningAddress)
         {
             BufferSize = 1024;
-            dataQueue = new Queue<QueueEntity>();
+            dataQueue = new ConcurrentQueue<QueueEntity>();
             ListeningPort = listeningPort;
             this.HeartbeatInterval = heartbeatInterval;
 
@@ -188,7 +189,7 @@ namespace EasyCommunication.Connection
                     return;
 
                 //If not heartbeat or disconnect
-                if (data.Length > 1)
+                if (data.Length > 5)
                 {
                     var sendingArgs = new SendingDataEventArgs()
                     {
@@ -293,46 +294,12 @@ namespace EasyCommunication.Connection
                     byte[] dataBuffer = new byte[bytesRead];
 
                     Array.Copy(receivingBuffer, dataBuffer, bytesRead);
-                    if (bytesRead > 5)
-                        Debug.WriteLine($"EasyHost: Received {((DataType)dataBuffer[0]).ToString()}");
 
                     //Do not accept empty buffers
                     if (bytesRead == 0)
                         continue;
 
-                    if (bytesRead == 5)
-                    {
-                        switch ((DataType)dataBuffer[0])
-                        {
-                            case DataType.HostHeartbeat:
-                                {
-                                    Debug.WriteLine("EasyHost: HostHeartbeat received");
-                                    if (Heartbeats.ContainsKey(clientInfo.Key))
-                                        Heartbeats[clientInfo.Key]++;
-                                    else
-                                        Heartbeats.Add(clientInfo.Key, 1);
-                                }
-                                break;
-                            case DataType.ClientHeartbeat:
-                                {
-                                    Debug.WriteLine("EasyHost: ClientHeartbeat received");
-                                    SendData(new byte[] { (byte)DataType.ClientHeartbeat, 0, 0, 0, 0 }, clientInfo.Key);
-                                }
-                                break;
-                            case DataType.Disconnect:
-                                {
-                                    Heartbeats.Remove(clientInfo.Key);
-                                    ClientConnections.Remove(clientInfo);
-                                    clientInfo.Key.Close();
-                                    EventHandler.InvokeClientDisconnected(new ClientDisconnectedEventArgs() { Client = clientInfo.Key, Port = clientInfo.Value });
-                                }
-                                break;
-                        }
-                    }
-                    else
-                    {
-                        new Task(() => HandleData(dataBuffer, bytesRead, clientInfo)).Start();
-                    }
+                    new Task(() => HandleData(dataBuffer, clientInfo)).Start();
                 }
                 catch (SocketException e)
                 {
@@ -384,36 +351,60 @@ namespace EasyCommunication.Connection
         /// </summary>
         /// <param name="data">The received data</param>
         /// <param name="clientInfo">Information about the sender</param>
-        private void HandleData(byte[] data, int bytesRead, KeyValuePair<TcpClient, int> clientInfo)
+        private void HandleData(byte[] data, KeyValuePair<TcpClient, int> clientInfo)
         {
-            //If less than or equal to 5 bytes long (Min. size), invalid.
-            if (bytesRead <= 5)
-                return;
+            IEnumerable<ReceivedBuffer> buffers = data.GetStackedBuffers();
 
-            //Remove "meta-"data
-            bytesRead -= 5;
-
-            //Convert promised size
-            uint dataLength = BitConverter.ToUInt32(data, 1);
-
-            //If promised size does not equal the received data length
-            if (bytesRead != dataLength)
-                return;
-
-            //Split datatype identifier & data
-            DataType type = (DataType)data[0];
-            byte[] trimmedBuffer = new byte[dataLength];
-            Array.Copy(data, 5, trimmedBuffer, 0, dataLength);
-
-            //Received Data Event
-            var receivedArgs = new ReceivedDataEventArgs()
+            foreach (ReceivedBuffer buffer in buffers)
             {
-                Sender = clientInfo.Key,
-                Port = clientInfo.Value,
-                Type = type,
-                Data = trimmedBuffer
-            };
-            EventHandler.InvokeReceivedData(receivedArgs);
+                if (buffer.Data.Length != 0)
+                    Debug.WriteLine($"EasyHost: Received {buffer.DataType} | {string.Join(" ", buffer.Data)}");
+
+                if (buffer.Data.Length == 0)
+                {
+                    switch (buffer.DataType)
+                    {
+                        case DataType.HostHeartbeat:
+                            {
+                                Debug.WriteLine("EasyHost: HostHeartbeat received");
+                                if (Heartbeats.ContainsKey(clientInfo.Key))
+                                    Heartbeats[clientInfo.Key]++;
+                                else
+                                    Heartbeats.Add(clientInfo.Key, 1);
+                            }
+                            break;
+                        case DataType.ClientHeartbeat:
+                            {
+                                Debug.WriteLine("EasyHost: ClientHeartbeat received");
+                                SendData(new byte[] { (byte)DataType.ClientHeartbeat, 0, 0, 0, 0 }, clientInfo.Key);
+                            }
+                            break;
+                        case DataType.Disconnect:
+                            {
+                                Heartbeats.Remove(clientInfo.Key);
+                                ClientConnections.Remove(clientInfo);
+                                clientInfo.Key.Close();
+                                EventHandler.InvokeClientDisconnected(new ClientDisconnectedEventArgs() { Client = clientInfo.Key, Port = clientInfo.Value });
+                            }
+                            break;
+                    }
+                }
+                else
+                {
+                    //Received Data Event
+                    var receivedArgs = new ReceivedDataEventArgs()
+                    {
+                        Sender = clientInfo.Key,
+                        Port = clientInfo.Value,
+                        ReceivedBuffer = buffer
+                    };
+
+                    lock (this)
+                    {
+                        EventHandler.InvokeReceivedData(receivedArgs);
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -427,8 +418,8 @@ namespace EasyCommunication.Connection
                 await Task.Delay(0);
                 if (dataQueue.Count == 0)
                     continue;
-                QueueEntity entitiy = dataQueue.Dequeue();
-                SendData(entitiy.Data, entitiy.Receiver);
+                if (dataQueue.TryDequeue(out QueueEntity entitiy))
+                    SendData(entitiy.Data, entitiy.Receiver);
             }
         }
 

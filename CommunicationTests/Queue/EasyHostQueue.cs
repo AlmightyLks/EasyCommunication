@@ -1,4 +1,5 @@
-﻿using EasyCommunication.Connection;
+﻿using EasyCommunication;
+using EasyCommunication.SharedTypes;
 using EasyCommunication.SharedTypes;
 using System;
 using System.Collections.Generic;

@@ -1,4 +1,4 @@
-﻿using EasyCommunication.Connection;
+﻿using EasyCommunication.SharedTypes;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -9,6 +9,41 @@ namespace EasyCommunication.Helper
 {
     public static class Helper
     {
+        public static IEnumerable<ReceivedBuffer> GetStackedBuffers(this byte[] buffer)
+        {
+            List<ReceivedBuffer> result = new List<ReceivedBuffer>();
+            int offset = 0;
+
+            //If less than to 5 bytes long (Min. size), invalid.
+            if (buffer.Length < 5)
+                return result;
+
+            do
+            {
+                //Convert promised size
+                int dataLength = BitConverter.ToInt32(buffer, offset + 1);
+
+                //If promised size + 5 id-bytes is greater than the received data length
+                if ((dataLength + 5) > buffer.Length)
+                    break;
+
+                byte[] trimmedBuffer = new byte[dataLength];
+                Array.Copy(buffer, 5, trimmedBuffer, 0, dataLength);
+
+                result.Add(new ReceivedBuffer()
+                {
+                    DataType = (DataType)buffer[offset],
+                    Data = trimmedBuffer
+                });
+
+                //Offset to size id for next
+                offset += (dataLength + 5);
+
+            } while (offset < buffer.Length);
+
+            return result;
+        }
+
         /// <summary>
         /// Gets the TcpListener's port
         /// </summary>
@@ -99,7 +134,7 @@ namespace EasyCommunication.Helper
         /// </remarks>
         /// <param name="connection"></param>
         /// <returns>Connection's IPAddress:Port string</returns>
-        public static string GetIPAndPort(this Connection.Connection? connection)
+        public static string GetIPAndPort(this Connection? connection)
         {
             try
             {

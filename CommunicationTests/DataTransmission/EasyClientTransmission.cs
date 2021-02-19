@@ -1,4 +1,4 @@
-﻿using EasyCommunication.Connection;
+﻿using EasyCommunication.SharedTypes;
 using EasyCommunication.Events.Host.EventArgs;
 using EasyCommunication.Serialization;
 using EasyCommunication.SharedTypes;
@@ -13,6 +13,8 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
+using EasyCommunication;
+using System.Diagnostics;
 
 namespace CommunicationTests.DataTransmission
 {
@@ -35,8 +37,8 @@ namespace CommunicationTests.DataTransmission
 
                 host.EventHandler.ReceivedData += delegate (ReceivedDataEventArgs ev)
                 {
-                    if (ev.Type == DataType.Short)
-                        result = BitConverter.ToInt16(ev.Data);
+                    if (ev.ReceivedBuffer.DataType == DataType.Short)
+                        result = BitConverter.ToInt16(ev.ReceivedBuffer.Data);
                 };
                 var status = client.QueueData(expected, DataType.Short);
 
@@ -63,8 +65,8 @@ namespace CommunicationTests.DataTransmission
 
                 host.EventHandler.ReceivedData += delegate (ReceivedDataEventArgs ev)
                 {
-                    if (ev.Type == DataType.Int)
-                        result = BitConverter.ToInt32(ev.Data);
+                    if (ev.ReceivedBuffer.DataType == DataType.Int)
+                        result = BitConverter.ToInt32(ev.ReceivedBuffer.Data);
                 };
                 var status = client.QueueData(expected, DataType.Int);
 
@@ -91,8 +93,8 @@ namespace CommunicationTests.DataTransmission
 
                 host.EventHandler.ReceivedData += delegate (ReceivedDataEventArgs ev)
                 {
-                    if (ev.Type == DataType.Long)
-                        result = BitConverter.ToInt64(ev.Data);
+                    if (ev.ReceivedBuffer.DataType == DataType.Long)
+                        result = BitConverter.ToInt64(ev.ReceivedBuffer.Data);
                 };
                 var status = client.QueueData(expected, DataType.Long);
 
@@ -119,8 +121,8 @@ namespace CommunicationTests.DataTransmission
 
                 host.EventHandler.ReceivedData += delegate (ReceivedDataEventArgs ev)
                 {
-                    if (ev.Type == DataType.Float)
-                        result = BitConverter.ToSingle(ev.Data);
+                    if (ev.ReceivedBuffer.DataType == DataType.Float)
+                        result = BitConverter.ToSingle(ev.ReceivedBuffer.Data);
                 };
                 var status = client.QueueData(expected, DataType.Float);
 
@@ -147,8 +149,8 @@ namespace CommunicationTests.DataTransmission
 
                 host.EventHandler.ReceivedData += delegate (ReceivedDataEventArgs ev)
                 {
-                    if (ev.Type == DataType.Double)
-                        result = BitConverter.ToDouble(ev.Data);
+                    if (ev.ReceivedBuffer.DataType == DataType.Double)
+                        result = BitConverter.ToDouble(ev.ReceivedBuffer.Data);
                 };
                 var status = client.QueueData(expected, DataType.Double);
 
@@ -175,8 +177,8 @@ namespace CommunicationTests.DataTransmission
 
                 host.EventHandler.ReceivedData += delegate (ReceivedDataEventArgs ev)
                 {
-                    if (ev.Type == DataType.Bool)
-                        result = BitConverter.ToBoolean(ev.Data);
+                    if (ev.ReceivedBuffer.DataType == DataType.Bool)
+                        result = BitConverter.ToBoolean(ev.ReceivedBuffer.Data);
                 };
                 var status = client.QueueData(expected, DataType.Bool);
 
@@ -203,8 +205,8 @@ namespace CommunicationTests.DataTransmission
 
                 host.EventHandler.ReceivedData += delegate (ReceivedDataEventArgs ev)
                 {
-                    if (ev.Type == DataType.String)
-                        result = Encoding.UTF8.GetString(ev.Data);
+                    if (ev.ReceivedBuffer.DataType == DataType.String)
+                        result = Encoding.UTF8.GetString(ev.ReceivedBuffer.Data);
                 };
                 var status = client.QueueData(expected, DataType.String);
 
@@ -231,8 +233,8 @@ namespace CommunicationTests.DataTransmission
 
                 host.EventHandler.ReceivedData += delegate (ReceivedDataEventArgs ev)
                 {
-                    if (ev.Type == DataType.JsonString)
-                        result = JsonConvert.DeserializeObject<Point>(Encoding.UTF8.GetString(ev.Data));
+                    if (ev.ReceivedBuffer.DataType == DataType.JsonString)
+                        result = JsonConvert.DeserializeObject<Point>(Encoding.UTF8.GetString(ev.ReceivedBuffer.Data));
                 };
                 var status = client.QueueData(expected, DataType.JsonString);
 
@@ -259,9 +261,9 @@ namespace CommunicationTests.DataTransmission
 
                 host.EventHandler.ReceivedData += delegate (ReceivedDataEventArgs ev)
                 {
-                    if (ev.Type == DataType.ProtoBuf)
+                    if (ev.ReceivedBuffer.DataType == DataType.ProtoBuf)
                     {
-                        using MemoryStream memStream = new MemoryStream(ev.Data);
+                        using MemoryStream memStream = new MemoryStream(ev.ReceivedBuffer.Data);
                         memStream.Position = 0;
                         result = Serializer.Deserialize<ProtoBufType>(memStream);
                     }
@@ -293,9 +295,9 @@ namespace CommunicationTests.DataTransmission
 
                 host.EventHandler.ReceivedData += delegate (ReceivedDataEventArgs ev)
                 {
-                    if (ev.Type == DataType.ByteArray)
+                    if (ev.ReceivedBuffer.DataType == DataType.ByteArray)
                     {
-                        result = ev.Data;
+                        result = ev.ReceivedBuffer.Data;
                     }
                 };
                 var status = client.QueueData(expected, DataType.ByteArray);
@@ -330,9 +332,9 @@ namespace CommunicationTests.DataTransmission
 
                 host.EventHandler.ReceivedData += delegate (ReceivedDataEventArgs ev)
                 {
-                    if (ev.Type == DataType.ByteArray)
+                    if (ev.ReceivedBuffer.DataType == DataType.ByteArray)
                     {
-                        result = ev.Data;
+                        result = ev.ReceivedBuffer.Data;
                     }
                 };
                 var status = client.QueueData(expected, DataType.ByteArray);
@@ -348,7 +350,7 @@ namespace CommunicationTests.DataTransmission
         [Fact]
         public async Task Transmit5Integers()
         {
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 100; i++)
             {
                 List<int> expected = new List<int>()
                 {
@@ -364,20 +366,21 @@ namespace CommunicationTests.DataTransmission
 
                 host.EventHandler.ReceivedData += delegate (ReceivedDataEventArgs ev)
                 {
-                    if (ev.Type == DataType.Int)
+                    if (ev.ReceivedBuffer.DataType == DataType.Int)
                     {
-                        result.Add(BitConverter.ToInt32(ev.Data));
+                        result.Add(BitConverter.ToInt32(ev.ReceivedBuffer.Data));
                     }
                 };
                 foreach (var item in expected)
                     client.QueueData(item, DataType.Int);
 
-                await Task.Delay(2000);
-                result.Sort();
-                Assert.Equal(expected, result);
+                await Task.Delay(125);
+
+                Assert.Equal(expected, result.OrderBy(_ => _).ToList());
 
                 client.DisconnectFromHost();
                 host.Close();
+                Debug.WriteLine("-------------------");
             }
         }
 

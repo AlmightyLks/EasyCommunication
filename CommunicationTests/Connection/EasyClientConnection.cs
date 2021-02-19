@@ -1,4 +1,5 @@
-﻿using EasyCommunication.Connection;
+﻿using EasyCommunication;
+using EasyCommunication.SharedTypes;
 using Moq;
 using System.Net;
 using System.Threading.Tasks;
